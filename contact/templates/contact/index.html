@@ -9,8 +9,6 @@
             </caption>
             <thead>
                 <tr class="table-row table-row-header">
-                    {% comment %} <th class="table-header">ID</th> {% endcomment %}
-                    {% comment %} <th class="table-header">Data da consulta</th> {% endcomment %}
                     <th class="table-header">Descrição do produto</th>
                     <th class="table-header">Marca</th>
                     <th class="table-header">Categoria</th>
@@ -21,14 +19,6 @@
             <tbody>
                 {% for contact in page_obj %}
                     <tr class="table-row">
-                        {% comment %} <td class="table-cel">
-                            <a class="table-link" href="{% url 'contact:contact' contact.id %}">
-                                {{contact.id}}
-                            </a>
-                        </td> {% endcomment %}
-                        {% comment %} <td class="table-cel">
-                            {{contact.data_da_consulta|date:"d-m-Y"}}
-                        </td> {% endcomment %}
                         <td class="table-cel">
                             <a class="table-link" href="{% url 'contact:contact' contact.id %}">
                                 {{contact.descricao_do_produto}}
