@@ -132,8 +132,8 @@ p {
   background: var(--clr-dark-shadow-10);
 }
 .table-row-header {
-  background: var(--clr-light-gray);
-  color: var(--clr-black);
+  background: var(--clr-black);
+  color: var(--link-light-color);
 }
 .table-cel,
 .table-header {
