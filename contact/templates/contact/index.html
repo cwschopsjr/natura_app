@@ -1,0 +1,61 @@
+{% extends 'global/base.html' %}
+
+{% block content %}
+{% if page_obj %}
+    <div class="responsive-table">
+        <table class="contacts-table">
+            <caption class="table-caption">
+                Lista de produtos para pronta entrega
+            </caption>
+            <thead>
+                <tr class="table-row table-row-header">
+                    {% comment %} <th class="table-header">ID</th> {% endcomment %}
+                    {% comment %} <th class="table-header">Data da consulta</th> {% endcomment %}
+                    <th class="table-header">Descrição do produto</th>
+                    <th class="table-header">Marca</th>
+                    <th class="table-header">Categoria</th>
+                    <th class="table-header">Preço</th>
+                    <th class="table-header">Qtd.</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contact in page_obj %}
+                    <tr class="table-row">
+                        {% comment %} <td class="table-cel">
+                            <a class="table-link" href="{% url 'contact:contact' contact.id %}">
+                                {{contact.id}}
+                            </a>
+                        </td> {% endcomment %}
+                        {% comment %} <td class="table-cel">
+                            {{contact.data_da_consulta|date:"d-m-Y"}}
+                        </td> {% endcomment %}
+                        <td class="table-cel">
+                            <a class="table-link" href="{% url 'contact:contact' contact.id %}">
+                                {{contact.descricao_do_produto}}
+                            </a>
+                        </td>
+                        <td class="table-cel">
+                            {{contact.marca}}
+                        </td>
+                        <td class="table-cel">
+                            {{contact.categoria}}
+                        </td>
+                        <td class="table-cel">
+                            {{contact.preco}}
+                        </td>
+                        <td class="table-cel">
+                            {{contact.qtd}}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="single-contact">
+        <h1 class="single-contact-name-search">
+            Nenhuma informação encontrada.
+        </h1>
+    </div>
+{% endif %}
+{% endblock content %}

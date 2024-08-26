@@ -1,0 +1,24 @@
+<header class="header">
+    <h1 class="header-heading">
+       <a href="{% url 'contact:index' %}" class="header-link">
+        Lojinha da Steh
+       </a>
+    </h1>
+   
+    <h5 class="header-h5">
+        <a>
+        Pesquise seu produto
+        </a>
+    </h5>
+    <div class="search">
+        <form action="{% url 'contact:search' %}" method="GET">
+            <input 
+             type="search" 
+             class="search-input" 
+             placeholder=""
+             id="search"
+             name="q"
+             value="{{ request.GET.q.strip }}">
+        </form>
+    </div>
+</header>

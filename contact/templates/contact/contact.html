@@ -1,0 +1,44 @@
+{% extends 'global/base.html' %}
+
+{% block content %}
+    <div class="single-contact">
+        <h1 class="single-contact-name">
+            {{contact.descricao_do_produto}}
+        </h1>
+
+        {% if contact.enviar_arquivo %}
+            <p>
+                <img src="{{ contact.enviar_arquivo.url }}" alt="{{ contact.descricao_do_produto }}">
+            </p>
+        {% endif %}
+
+        {% comment %} <p><b>ID:</b> {{contact.id}}</p> {% endcomment %}
+        {% comment %} <p><b>Data da consulta:</b> {{contact.data_da_consulta}}</p> {% endcomment %}
+        <p class="description"><b>Marca:&nbsp</b> {{contact.marca}}</p>
+        <p class="description"><b>Categoria:&nbsp</b> {{contact.categoria}}</p>
+        <p class="description"><b>Quantidade:&nbsp</b> {{contact.qtd}}</p>
+        <p class="description"><b>Preço:&nbsp</b> {{contact.preco}}</p>
+        <p class="description"><b>Descrição:&nbsp</b> {{contact.anotacoes}}</p>
+        {% comment %} <p><b>Data da criação:</b> {{contact.created_date}}</p> {% endcomment %}
+        {% comment %} <p><b>Categoria:</b> {{contact.categoria.nome}}</p> {% endcomment %}
+
+        
+
+
+        {% comment %} <div class="contact-links">
+            <a class="btn btn-link" href="{% url 'contact:update' contact.id %}">Atualizar</a>
+
+            <form action="{% url 'contact:delete' contact.id %}" method="POST">
+
+                {% csrf_token %}
+
+                {% if confirmation == 'no' %}
+                    <input type="hidden" name="confirmation" value="yes"> 
+                    <button class="btn btn-link btn-delete" type="submit">Confirma?</button>
+                {% else %}
+                    <button class="btn btn-link btn-delete" type="submit">Excluir</button>
+                {% endif %}
+            </form>
+        </div> {% endcomment %}
+    </div>
+{% endblock content %}
