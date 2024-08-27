@@ -43,6 +43,7 @@ body {
   color: var(--clr-black);
   -webkit-font-smoothing: antialiased;
   background: var(--clr-light-gray);
+  
 }
 img,
 svg {
@@ -50,8 +51,9 @@ svg {
 }
 
 p {
-  display: flex;
+  display: grid;
   justify-content: center;
+  text-decoration: none;
 }
 
 .imagem {
@@ -311,4 +313,23 @@ p {
 
 .description {
   justify-content: left;
+}
+
+.footer {
+  text-decoration: none;
+  background-color: var(--clr-black);
+  color: var(--clr-light-gray);
+  padding: 8px
+}
+
+.footer a{
+  text-decoration: none;
+  background-color: var(--clr-black);
+  color: var(--link-light-color)
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(32rem, 100%), 1fr));
+  gap: var(--spacing-base);
 }

@@ -1,4 +1,5 @@
 {% extends 'global/base.html' %}
+{% load cwsfilters %}
 
 {% block content %}
     <div class="single-contact">
@@ -8,14 +9,14 @@
 
         {% if contact.enviar_arquivo %}
             <p>
-                <img src="{{ contact.enviar_arquivo.url }}" alt="{{ contact.descricao_do_produto }}">
+                <img class="image-grid" src="{{ contact.enviar_arquivo.url }}" alt="{{ contact.descricao_do_produto }}">
             </p>
         {% endif %}
 
         <p class="description"><b>Marca:&nbsp</b> {{contact.marca}}</p>
         <p class="description"><b>Categoria:&nbsp</b> {{contact.categoria}}</p>
         <p class="description"><b>Quantidade:&nbsp</b> {{contact.qtd}}</p>
-        <p class="description"><b>Preço:&nbsp</b> {{contact.preco}}</p>
+        <p class="description"><b>Preço:&nbsp</b> {{contact.preco|formata_preco}}</p>
         <p class="description"><b>Descrição:&nbsp</b> {{contact.anotacoes}}</p>
 
     </div>

@@ -13,8 +13,7 @@ class Contact(models.Model):
     categoria = models.CharField(max_length=50, blank=True,
                                  null=True, verbose_name='Categoria')
     qtd = models.CharField(max_length=4, blank=True, null=True)
-    preco = models.CharField(
-        max_length=15, blank=True, verbose_name='Preço')
+    preco = models.FloatField(verbose_name='Preço')
     anotacoes = models.TextField(blank=True, verbose_name='Anotações')
     show = models.BooleanField(default=True)
     enviar_arquivo = models.ImageField(blank=True, upload_to='pictures/%Y/%m/')
