@@ -9,5 +9,7 @@ urlpatterns = [
 
     # contact (CRUD)
     path('contact/<int:contact_id>/', views.contact, name='contact'),
-
+    path('user/login/', views.login_view, name='login'),
+    path('user/logout/', views.logout_view, name='logout'),
+    path('user/create/', views.register, name='register'),
 ]

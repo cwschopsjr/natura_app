@@ -241,7 +241,7 @@ p {
   color: inherit;
 }
 .form-group p {
-  margin: 1em 0;
+  margin: 1rem 0;
 }
 .form-group .help-text,
 .form-group .help-text ~ ul {
@@ -249,9 +249,11 @@ p {
   font-size: var(--smallest-font-size);
   list-style: none;
 }
+
 .form-group input,
 .form-group textarea,
 .form-group select {
+  /* width: 200px; */
   padding: 1rem;
   border-radius: var(--default-border-radius);
   border: 1px solid var(--link-dark-color);
@@ -266,7 +268,7 @@ p {
   font-size: var(--smaller-font-size);
 }
 .btn {
-  background-color: var(--link-dark-color);
+  background-color: black;
   color: var(--clr-white);
   font-weight: bold;
   border: none;

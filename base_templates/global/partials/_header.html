@@ -4,10 +4,31 @@
         Lojinha da Steh
        </a>
     </h1>
+
+    <nav class="menu">
+        <ul class="menu-list">
+          {% if user.is_authenticated %}
+            <li class="menu-item">
+              <a href="{% url 'contact:index' %}" class="menu-link">
+                Lista de Produtos
+              </a>
+            </li>
+            <li class="menu-item">
+              <a href="{% url 'contact:logout' %}" class="menu-link">
+                Sair
+              </a>
+            </li>
+          {% else %}
+            <li class="menu-item">
+              <a href="{% url 'contact:login' %}" class="menu-link">Login</a>
+            </li>      
+          {% endif %}
+        </ul>
+      </nav>
    
     <h5 class="header-h5">
         <a>
-        Pesquise seu produto
+        Pesquisar produto
         </a>
     </h5>
     <div class="search">
