@@ -202,7 +202,7 @@ p {
   padding: var(--spacing);
   text-align: center;
   border-radius: var(--default-border-radius);
-  font-size: var(--small-font-size);
+  font-size: var(--smaller-font-size);
 }
 .message.success {
   background: rgba(0, 255, 0, 0.3);
