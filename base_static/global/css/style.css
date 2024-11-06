@@ -57,13 +57,24 @@ p {
 }
 
 .imagem {
+  padding-bottom: 60px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
+.logo {
+  max-width: auto;
+  max-height: 500px;
+  width: 100%;
+  overflow: hidden;
+  height: 396px;
+}
+
 .header {
   background: var(--clr-white);
-  padding: var(--spacing);
+  padding-top: 4px;
+  padding-bottom: 8px;
   box-shadow: 0 5px 10px 2px var(--clr-dark-shadow-20);
   z-index: 1;
   position: relative;

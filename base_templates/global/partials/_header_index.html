@@ -1,11 +1,11 @@
 <header class="header">
     <h1 class="header-heading">
-       <a href="#" class="header-link">
+       <a href="{% url 'contact:index' %}" class="header-link">
         Lojinha da Steh
        </a>
     </h1>
 
-    {% if user.is_authenticated %}
+    <!-- {% if user.is_authenticated %}
       <nav class="menu">
         <ul class="menu-list">
           <li class="menu-item">
@@ -15,9 +15,9 @@
           </li>
         </ul>
       </nav>
-    {% endif %}
+    {% endif %} -->
 
-    <!-- <nav class="menu">
+    <nav class="menu">
         <ul class="menu-list">
           {% if user.is_authenticated %}
             <li class="menu-item">
@@ -32,13 +32,13 @@
             </li>
           {% else %}
             <li class="menu-item">
-              <a href="{% url 'contact:login' %}" class="menu-link">Login</a>
+              <a href="{% url 'contact:login' %}" class="menu-link">Acessar Área VIP</a>
             </li>      
           {% endif %}
         </ul>
       </nav>
    
-    <h5 class="header-h5">
+    <!-- <h5 class="header-h5">
         <a>
         Pesquisar produto
         </a>
@@ -53,5 +53,5 @@
              name="q"
              value="{{ request.GET.q.strip }}">
         </form>
-    </div>
-</header> -->
+    </div> -->
+</header>
