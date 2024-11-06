@@ -8,11 +8,14 @@
 
     {% include 'global/partials/_messages.html' %}
 
-    <main class="content">
-        {% block content %}{% endblock content %}
-        <!-- {% include 'global/partials/_pagination.html' %} -->
-        
-    </main>
+    {% if user.is_authenticated %}
+        <main class="content">
+            
+            {% block content %}{% endblock content %}
+            {% include 'global/partials/_pagination.html' %}
+                
+        </main>
+    {% endif %}
     {% include 'global/partials/_footer.html' %}
 </body>
 </html>

@@ -5,6 +5,15 @@ from contact.models import Contact
 
 
 def index(request):
+
+    context = {
+
+    }
+
+    return render(request, 'contact/index.html', context)
+
+
+def estoque(request):
     contacts = Contact.objects.filter(
         show=True).order_by('-descricao_do_produto')
 
@@ -17,7 +26,7 @@ def index(request):
         'site_title': 'Produtos - '
     }
 
-    return render(request, 'contact/index.html', context)
+    return render(request, 'contact/estoque.html', context)
 
 
 def contact(request, contact_id):
@@ -37,7 +46,7 @@ def search(request):
     search_value = request.GET.get('q', '').strip()
 
     if search_value == '':
-        return redirect('contact:index')
+        return redirect('contact:estoque')
 
     contacts = Contact.objects\
         .filter(show=True)\
@@ -56,4 +65,4 @@ def search(request):
         'site_title': 'Busca - '
     }
 
-    return render(request, 'contact/index.html', context)
+    return render(request, 'contact/estoque.html', context)

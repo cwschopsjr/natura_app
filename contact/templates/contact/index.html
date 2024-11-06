@@ -1,113 +1,28 @@
-{% extends 'global/base.html' %}
-{% load cwsfilters %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    {% include 'global/partials/_head.html' %}
+</head>
+<body>
+    {% include 'global/partials/_header_index.html' %}
 
-{% block content %}
-{% if user.is_authenticated %}
-  {% if page_obj %}
-    
-      <div class="responsive-table">
-          <table id="table-index" class="contacts-table">
-              {% comment %} <caption class="table-caption">
-                  Lista de produtos para pronta entrega
-              </caption> {% endcomment %}
-              <thead>
-                  <tr class="table-row table-row-header">
-                      <th onclick="sortTable(0)" class="table-header">Descrição do produto</th>
-                      <th onclick="sortTable(1)" class="table-header">Marca</th>
-                      <th onclick="sortTable(2)" class="table-header">Categoria</th>
-                      <th onclick="sortTable(3)" class="table-header">Preço</th>
-                      <th onclick="sortTable(4)" class="table-header">Qtd.</th>
-                  </tr>
-              </thead>
+    <nav class="menu">
+      <ul class="menu-list">
+        <li class="menu-item">
+          <a href="{% url 'contact:login' %}" class="menu-link">
+            Acessar Área VIP
+          </a>
+        </li>
+      </ul>
+    </nav>
 
-              <script>
-                  function sortTable(n) {
-                    var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-                    table = document.getElementById("table-index");
-                    switching = true;
-                    // Set the sorting direction to ascending:
-                    dir = "asc";
-                    /* Make a loop that will continue until
-                    no switching has been done: */
-                    while (switching) {
-                      // Start by saying: no switching is done:
-                      switching = false;
-                      rows = table.rows;
-                      /* Loop through all table rows (except the
-                      first, which contains table headers): */
-                      for (i = 1; i < (rows.length - 1); i++) {
-                        // Start by saying there should be no switching:
-                        shouldSwitch = false;
-                        /* Get the two elements you want to compare,
-                        one from current row and one from the next: */
-                        x = rows[i].getElementsByTagName("TD")[n];
-                        y = rows[i + 1].getElementsByTagName("TD")[n];
-                        /* Check if the two rows should switch place,
-                        based on the direction, asc or desc: */
-                        if (dir == "asc") {
-                          if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                            // If so, mark as a switch and break the loop:
-                            shouldSwitch = true;
-                            break;
-                          }
-                        } else if (dir == "desc") {
-                          if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                            // If so, mark as a switch and break the loop:
-                            shouldSwitch = true;
-                            break;
-                          }
-                        }
-                      }
-                      if (shouldSwitch) {
-                        /* If a switch has been marked, make the switch
-                        and mark that a switch has been done: */
-                        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                        switching = true;
-                        // Each time a switch is done, increase this count by 1:
-                        switchcount ++;
-                      } else {
-                        /* If no switching has been done AND the direction is "asc",
-                        set the direction to "desc" and run the while loop again. */
-                        if (switchcount == 0 && dir == "asc") {
-                          dir = "desc";
-                          switching = true;
-                        }
-                      }
-                    }
-                  }
-                  </script>
+    {% comment %} {% include 'global/partials/_messages.html' %}
 
-              <tbody>
-                  {% for contact in page_obj %}
-                      <tr class="table-row">
-                          <td class="table-cel">
-                              <a class="table-link" href="{% url 'contact:contact' contact.id %}">
-                                  {{contact.descricao_do_produto}}
-                              </a>
-                          </td>
-                          <td class="table-cel">
-                              {{contact.marca}}
-                          </td>
-                          <td class="table-cel">
-                              {{contact.categoria}}
-                          </td>
-                          <td class="table-cel">
-                              {{contact.preco|formata_preco}}
-                          </td>
-                          <td class="table-cel">
-                              {{contact.qtd}}
-                          </td>
-                      </tr>
-                  {% endfor %}
-              </tbody>
-          </table>
-      </div>
-  {% else %}
-      <div class="single-contact">
-          <h1 class="single-contact-name-search">
-              Nenhuma informação encontrada.
-          </h1>
-      </div>
-  {% endif %}
-{% endif %}
-{% endblock content %}
+    <main class="content">
+        {% block content %}{% endblock content %}
+        {% include 'global/partials/_pagination.html' %}
+        
+    </main>
+    {% include 'global/partials/_footer.html' %} {% endcomment %}
+</body>
+</html>

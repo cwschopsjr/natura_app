@@ -33,7 +33,7 @@ def login_view(request):
             user = form.get_user()
             auth.login(request, user)
             messages.success(request, 'Logado com sucesso!')
-            return redirect('contact:index')
+            return redirect('contact:estoque')
         messages.error(request, 'Login inválido')
 
     return render(
@@ -48,4 +48,4 @@ def login_view(request):
 @login_required(login_url='contact:login')
 def logout_view(request):
     auth.logout(request)
-    return redirect('contact:login')
+    return redirect('contact:index')
