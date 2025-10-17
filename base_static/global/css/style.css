@@ -349,3 +349,7 @@ p {
   font-size: var(--smaller-font-size);
   text-align: center;
 }
+
+.single-contact-name-search {
+  text-align: center;
+}
