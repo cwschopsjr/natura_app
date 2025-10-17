@@ -19,5 +19,13 @@
         <p class="description"><b>Preço:&nbsp</b> {{contact.preco|formata_preco}}</p>
         <p class="description"><b>Descrição:&nbsp</b> {{contact.anotacoes}}</p>
 
+        {% for group in request.user.groups.all %}
+            {% if group.name == 'Supervisores' %}
+                <div class="contact-links">
+                    <a class="btn btn-link" href="{% url 'contact:update' contact.id %}">Editar</a>
+                </div>
+            {% endif %}
+        {% endfor %}
+        
     </div>
 {% endblock content %}
