@@ -5,7 +5,7 @@ from contact.models import Contact
 
 class ContactForm(forms.ModelForm):
 
-    enviar_arquivo = forms.ImageField(
+    picture = forms.ImageField(
         widget=forms.FileInput(
             attrs={
                 'accept': 'img/*',
@@ -18,7 +18,7 @@ class ContactForm(forms.ModelForm):
         model = Contact
         fields = ('marca', 'descricao_do_produto',
                   'categoria', 'qtd', 'preco', 'anotacoes',
-                  'enviar_arquivo')
+                  'picture')
 
 
 class RegisterForm(UserCreationForm):

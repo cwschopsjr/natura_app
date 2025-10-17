@@ -16,7 +16,7 @@ class Contact(models.Model):
     preco = models.FloatField(verbose_name='Preço')
     anotacoes = models.TextField(blank=True, verbose_name='Anotações')
     show = models.BooleanField(default=True)
-    enviar_arquivo = models.ImageField(blank=True, upload_to='pictures/%Y/%m/')
+    picture = models.ImageField(blank=True, upload_to='pictures/%Y/%m/')
     created_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self) -> str:

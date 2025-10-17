@@ -7,9 +7,9 @@
             {{contact.descricao_do_produto}}
         </h1>
 
-        {% if contact.enviar_arquivo %}
+        {% if contact.picture %}
             <p>
-                <img src="{{ contact.enviar_arquivo.url }}" alt="{{ contact.descricao_do_produto }}">
+                <img src="{{ contact.picture.url }}" alt="{{ contact.descricao_do_produto }}">
             </p>
         {% endif %}
 
