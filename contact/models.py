@@ -53,6 +53,7 @@ class Entradas(models.Model):
     )
     qtd = models.PositiveIntegerField(blank=True, null=True)
     preco_de_custo = models.FloatField(verbose_name='Preço de custo', blank=True, null=True)
+    data_de_validade = models.DateTimeField(default=timezone.now)
     show = models.BooleanField(default=True)
     
     def __str__(self) -> str:

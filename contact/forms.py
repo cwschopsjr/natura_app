@@ -29,4 +29,4 @@ class EntradasForm(forms.ModelForm):
     class Meta:
         model = Entradas
         fields = ('data_de_entrada', 'descricao_do_produto',
-                  'qtd', 'preco_de_custo')
+                  'qtd', 'preco_de_custo', 'data_de_validade')

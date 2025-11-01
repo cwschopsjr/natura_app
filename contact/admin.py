@@ -23,7 +23,7 @@ class ContactAdmin(admin.ModelAdmin):
     
 @admin.register(models.Entradas)
 class EntradasAdmin(admin.ModelAdmin):
-    list_display = 'descricao_do_produto', 'qtd', 'preco_de_custo', 'show'
+    list_display = 'descricao_do_produto', 'qtd', 'preco_de_custo', 'data_de_validade', 'show'
     ordering = '-id',
     search_fields = 'id', 'descricao_do_produto', 'qtd', 'preco_de_custo'
     list_per_page = 300

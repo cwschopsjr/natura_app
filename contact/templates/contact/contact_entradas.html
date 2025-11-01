@@ -17,6 +17,7 @@
         <p class="description"><b>Descrição do produto:&nbsp</b> {{ entradas.descricao_do_produto }}</p>
         <p class="description"><b>Quantidade:&nbsp</b> {{ entradas.qtd }}</p>
         <p class="description"><b>Preço de custo: R$&nbsp</b> {{ entradas.preco_de_custo|floatformat:2 }}</p>
+        <p class="description"><b>Data de validade:&nbsp</b> {{ entradas.data_de_validade }}</p>
 
         {% comment %} <p class="description"><b>Total entradas:&nbsp</b> {{ produto.total_entradas }}</p>
         <p class="description"><b>Preço médio de custo:&nbsp</b> {{ produto.preco_medio_custo|floatformat:2 }}</p> {% endcomment %}

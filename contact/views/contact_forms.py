@@ -122,7 +122,7 @@ def update_entradas(request, contact_id):
 
     return render(
         request,
-        'contact/create.html',
+        'contact/create_entradas.html',
         context
     )
 
