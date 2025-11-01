@@ -16,6 +16,7 @@
                       <th onclick="sortTable(1)" class="table-header">Descrição do produto</th>
                       <th onclick="sortTable(2)" class="table-header">Quantidade</th>
                       <th onclick="sortTable(3)" class="table-header">Preço de custo</th>
+                      <th onclick="sortTable(3)" class="table-header">Data de validade</th>
                   </tr>
               </thead>
 
@@ -92,6 +93,9 @@
                           </td>
                           <td class="table-cel">
                               {{entradas.preco_de_custo|formata_preco}}
+                          </td>
+                          <td class="table-cel">
+                              {{entradas.data_de_validade}}
                           </td>
                       </tr>
                   {% endfor %}

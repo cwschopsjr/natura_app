@@ -171,13 +171,39 @@ def search(request):
     if search_value == '':
         return redirect('contact:estoque')
 
-    contacts = Contact.objects\
-        .filter(show=True)\
-        .filter(Q(descricao_do_produto__icontains=search_value) |
-                Q(qtd__icontains=search_value) |
-                Q(preco_de_custo__icontains=search_value) |
-                Q(data_de_entrada__icontains=search_value)) \
-        .order_by('-id')
+    contacts = Contact.objects.filter(
+    show=True
+        ).filter(Q(descricao_do_produto__icontains=search_value) |
+                 Q(categoria__nome__icontains=search_value) |
+                 Q(marca__nome__icontains=search_value)).prefetch_related('entradas', 'saidas').order_by('-id')
+
+
+    for contact in contacts:
+        entradas = contact.entradas.all() # type: ignore
+        saidas = contact.saidas.all() # type: ignore
+
+        total_entradas = 0
+        total_custo = 0.0
+        total_saidas = 0
+
+        for entrada in entradas:
+            if entrada.qtd and entrada.preco_de_custo:
+                total_entradas += entrada.qtd
+                total_custo += entrada.qtd * entrada.preco_de_custo
+
+        for saida in saidas:
+            if saida.qtd:
+                total_saidas += saida.qtd
+
+        preco_medio = total_custo / total_entradas if total_entradas > 0 else 0
+        saldo_estoque = total_entradas - total_saidas
+        valor_estoque = saldo_estoque * preco_medio
+
+        setattr(contact, 'total_entradas', total_entradas)
+        setattr(contact, 'total_saidas', total_saidas)
+        setattr(contact, 'saldo_estoque', saldo_estoque)
+        setattr(contact, 'preco_medio_custo', preco_medio)
+        setattr(contact, 'valor_estoque', valor_estoque)
 
     paginator = Paginator(contacts, 500)
     page_number = request.GET.get('page')
@@ -189,3 +215,4 @@ def search(request):
     }
 
     return render(request, 'contact/estoque.html', context)
+

@@ -94,10 +94,10 @@
                               {{contact.categoria}}
                           </td>
                           <td class="table-cel">
-                            {{ contact.preco_medio_custo|formata_preco }}
+                            {{ contact.preco_medio_custo|floatformat:2 }}
                           </td>
                           <td class="table-cel">
-                              {{contact.preco_de_catalogo|formata_preco}}
+                              {{contact.preco_de_catalogo|floatformat:2}}
                           </td>
                           <td class="table-cel">
                               {{contact.data_de_validade}}
