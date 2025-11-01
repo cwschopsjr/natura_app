@@ -9,23 +9,21 @@
 
         {% if contact.picture %}
             <p>
-                <img src="{{ contact.picture.url }}" alt="{{ contact.descricao_do_produto }}">
+                <img src="{{ contact.picture.url }}" class="single-contact single-contact-picture" alt="{{ contact.descricao_do_produto }}">
             </p>
         {% endif %}
 
         <p class="description"><b>Marca:&nbsp</b> {{contact.marca}}</p>
         <p class="description"><b>Categoria:&nbsp</b> {{contact.categoria}}</p>
-        <p class="description"><b>Quantidade:&nbsp</b> {{contact.qtd}}</p>
-        <p class="description"><b>Preço:&nbsp</b> {{contact.preco|formata_preco}}</p>
+        <p class="description"><b>Quantidade:&nbsp</b> {{contact.total_entradas}}</p>
+        <p class="description"><b>Preço de custo: R$&nbsp</b> {{contact.preco_medio_custo|floatformat:2}}</p>
+        <p class="description"><b>Preço de catálogo:&nbsp</b> {{contact.preco_de_catalogo|formata_preco}}</p>
+        <p class="description"><b>Data de validade:&nbsp</b> {{contact.data_de_validade}}</p>
         <p class="description"><b>Descrição:&nbsp</b> {{contact.anotacoes}}</p>
 
-        {% for group in request.user.groups.all %}
-            {% if group.name == 'Supervisores' %}
-                <div class="contact-links">
-                    <a class="btn btn-link" href="{% url 'contact:update' contact.id %}">Editar</a>
-                </div>
-            {% endif %}
-        {% endfor %}
+        <div class="contact-links">
+            <a class="single-contact btn btn-link" href="{% url 'contact:update' contact.id %}"> <p> Editar </p></a>
+        </div>
         
     </div>
 {% endblock content %}

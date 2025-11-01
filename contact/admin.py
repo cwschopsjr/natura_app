@@ -1,12 +1,31 @@
 from django.contrib import admin
 from contact import models
 
+@admin.register(models.Marca)
+class MarcaAdmin(admin.ModelAdmin):
+    list_display = 'nome',
+    ordering = '-id',
+    
+@admin.register(models.Categoria)
+class CategoriaAdmin(admin.ModelAdmin):
+    list_display = 'nome',
+    ordering = '-id',
 
 @admin.register(models.Contact)
 class ContactAdmin(admin.ModelAdmin):
-    list_display = 'descricao_do_produto', 'marca', 'categoria', 'preco', 'qtd', 'show'
+    list_display = 'descricao_do_produto', 'marca', 'categoria', 'preco_de_catalogo', 'show'
     ordering = '-id',
-    search_fields = 'id', 'descricao_do_produto', 'marca', 'categoria', 'preco', 'qtd'
+    search_fields = 'id', 'descricao_do_produto', 'marca', 'categoria', 'preco_de_catalogo',
+    list_per_page = 300
+    list_max_show_all = 300
+    list_editable = 'show',
+    list_display_links = 'descricao_do_produto',
+    
+@admin.register(models.Entradas)
+class EntradasAdmin(admin.ModelAdmin):
+    list_display = 'descricao_do_produto', 'qtd', 'preco_de_custo', 'show'
+    ordering = '-id',
+    search_fields = 'id', 'descricao_do_produto', 'qtd', 'preco_de_custo'
     list_per_page = 300
     list_max_show_all = 300
     list_editable = 'show',

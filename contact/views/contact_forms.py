@@ -1,9 +1,11 @@
 from django.shortcuts import get_object_or_404, render, redirect
-from contact.forms import ContactForm
+from contact.forms import ContactForm, EntradasForm
 from django.urls import reverse
-from contact.models import Contact
+from contact.models import Contact, Entradas
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+
 
 
 @login_required(login_url='contact:login')
@@ -18,28 +20,34 @@ def create(request):
         }
 
         if form.is_valid():
+            descricao = form.cleaned_data.get('descricao_do_produto')
+            marca = form.cleaned_data.get('marca')
+            categoria = form.cleaned_data.get('categoria')
+
+            # Verifica se já existe um produto com os mesmos dados
+            if Contact.objects.filter(
+                descricao_do_produto=descricao,
+                marca=marca,
+                categoria=categoria,
+                show=True
+            ).exists():
+                messages.error(request, 'Este produto já está cadastrado.')
+                return render(request, 'contact/create.html', context)
+
             contact = form.save(commit=False)
             contact.show = True
-            messages.success(request, 'Registrado com sucesso.')
             contact.save()
+            messages.success(request, 'Registrado com sucesso.')
             return redirect('contact:estoque')
 
-        return render(
-            request,
-            'contact/create.html',
-            context
-        )
+        return render(request, 'contact/create.html', context)
 
     context = {
         'form': ContactForm(),
         'form_action': form_action,
     }
 
-    return render(
-        request,
-        'contact/create.html',
-        context
-    )
+    return render(request, 'contact/create.html', context)
 
 
 @login_required(login_url='contact:login')
@@ -77,5 +85,78 @@ def update(request, contact_id):
     return render(
         request,
         'contact/create.html',
+        context
+    )
+    
+@login_required(login_url='contact:login')
+def update_entradas(request, contact_id):
+
+    entrada = get_object_or_404(
+        Entradas, pk=contact_id, show=True
+    )
+    form_action = reverse('contact:update_entradas', args=(contact_id,))
+
+    if request.method == 'POST':
+        form = EntradasForm(request.POST, request.FILES, instance=entrada)
+
+        context = {
+            'form': form,
+            'form_action': form_action,
+        }
+
+        if form.is_valid():
+            messages.success(request, 'Registrado com sucesso.')
+            contact = form.save()
+            return redirect('contact:entradas')
+
+        return render(
+            request,
+            'contact/create_entradas.html',
+            context
+        )
+
+    context = {
+        'form': EntradasForm(instance=entrada),
+        'form_action': form_action,
+    }
+
+    return render(
+        request,
+        'contact/create.html',
+        context
+    )
+
+@login_required(login_url='contact:login')
+def create_entradas(request):
+    form_action = reverse('contact:create_entradas')
+
+    if request.method == 'POST':
+        form = EntradasForm(request.POST, request.FILES)
+        context = {
+            'form': form,
+            'form_action': form_action,
+        }
+
+        if form.is_valid():
+            contact = form.save(commit=False)
+            contact.show = True
+            messages.success(request, 'Registrado com sucesso.')
+            contact.save()
+            return redirect('contact:entradas')
+
+        return render(
+            request,
+            'contact/create_entradas.html',
+            context
+        )
+
+    context = {
+        'form': EntradasForm(),
+        'form_action': form_action,
+    }
+
+    return render(
+        request,
+        'contact/create_entradas.html',
         context
     )

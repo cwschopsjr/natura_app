@@ -1,0 +1,28 @@
+{% extends 'global/base_entradas.html' %}
+{% load cwsfilters %}
+
+{% block content %}
+    <div class="single-contact">
+        <h1 class="single-contact-name">
+            {{ entradas.descricao_do_produto }}
+        </h1>
+
+        {% if produto.picture %}
+            <p>
+                <img src="{{ produto.picture.url }}" class="single-contact single-contact-picture" alt="{{ produto.descricao_do_produto }}">
+            </p>
+        {% endif %}
+
+        <p class="description"><b>Data de entrada:&nbsp</b> {{ entradas.data_de_entrada }}</p>
+        <p class="description"><b>Descrição do produto:&nbsp</b> {{ entradas.descricao_do_produto }}</p>
+        <p class="description"><b>Quantidade:&nbsp</b> {{ entradas.qtd }}</p>
+        <p class="description"><b>Preço de custo: R$&nbsp</b> {{ entradas.preco_de_custo|floatformat:2 }}</p>
+
+        {% comment %} <p class="description"><b>Total entradas:&nbsp</b> {{ produto.total_entradas }}</p>
+        <p class="description"><b>Preço médio de custo:&nbsp</b> {{ produto.preco_medio_custo|floatformat:2 }}</p> {% endcomment %}
+
+        <div class="contact-links">
+            <a class="single-contact btn btn-link" href="{% url 'contact:update_entradas' entradas.id %}"><p> Editar </p></a>
+        </div>
+    </div>
+{% endblock content %}

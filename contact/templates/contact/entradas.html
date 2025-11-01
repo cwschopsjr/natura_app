@@ -1,4 +1,4 @@
-{% extends 'global/base.html' %}
+{% extends 'global/base_entradas.html' %}
 {% load cwsfilters %}
 
 {% block content %}
@@ -12,13 +12,10 @@
               </caption> {% endcomment %}
               <thead>
                   <tr class="table-row table-row-header">
-                      <th onclick="sortTable(0)" class="table-header">Descrição do produto</th>
-                      <th onclick="sortTable(1)" class="table-header">Marca</th>
-                      <th onclick="sortTable(2)" class="table-header">Categoria</th>
-                      <th onclick="sortTable(3)" class="table-header">Preço de custo unitário</th>
-                      <th onclick="sortTable(3)" class="table-header">Preço de catálogo</th>
-                      <th onclick="sortTable(3)" class="table-header">Data de validade</th>
-                      <th onclick="sortTable(4)" class="table-header">Qtd. disponível</th>
+                      <th onclick="sortTable(0)" class="table-header">Data de entrada</th>
+                      <th onclick="sortTable(1)" class="table-header">Descrição do produto</th>
+                      <th onclick="sortTable(2)" class="table-header">Quantidade</th>
+                      <th onclick="sortTable(3)" class="table-header">Preço de custo</th>
                   </tr>
               </thead>
 
@@ -80,30 +77,21 @@
                   </script>
 
               <tbody>
-                  {% for contact in page_obj %}
+                  {% for entradas in page_obj %}
                       <tr class="table-row">
                           <td class="table-cel">
-                              <a class="table-link" href="{% url 'contact:contact' contact.id %}">
-                                  {{contact.descricao_do_produto}}
+                              {{entradas.data_de_entrada}}
+                          </td>
+                          <td class="table-cel">
+                              <a class="table-link" href="{% url 'contact:contact_entradas' entradas.id %}">
+                                  {{entradas.descricao_do_produto}}
                               </a>
                           </td>
                           <td class="table-cel">
-                              {{contact.marca}}
+                              {{entradas.qtd}}
                           </td>
                           <td class="table-cel">
-                              {{contact.categoria}}
-                          </td>
-                          <td class="table-cel">
-                            {{ contact.preco_medio_custo|formata_preco }}
-                          </td>
-                          <td class="table-cel">
-                              {{contact.preco_de_catalogo|formata_preco}}
-                          </td>
-                          <td class="table-cel">
-                              {{contact.data_de_validade}}
-                          </td>
-                          <td class="table-cel">
-                            {{ contact.total_entradas }}
+                              {{entradas.preco_de_custo|formata_preco}}
                           </td>
                       </tr>
                   {% endfor %}

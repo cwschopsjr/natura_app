@@ -48,6 +48,7 @@ body {
 img,
 svg {
   display: flex;
+  align-items: center;
 }
 
 p {
@@ -64,6 +65,7 @@ p {
 }
 
 .logo {
+  padding-top: 100px;
   max-width: auto;
   max-height: 500px;
   width: 100%;
@@ -173,6 +175,8 @@ p {
 }
 .single-contact p {
   margin: 1rem 0;
+  text-align: center;
+  display: block;
 }
 .pagination {
   margin-top: var(--spacing);
@@ -352,4 +356,10 @@ p {
 
 .single-contact-name-search {
   text-align: center;
+}
+
+.single-contact-picture {
+  width: 200px;
+  height: 200px;
+  display: block;
 }
