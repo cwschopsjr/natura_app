@@ -1,11 +1,8 @@
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, render, redirect
 from django.db.models import Q
+from datetime import datetime
 from contact.models import Contact, Entradas, Saidas
-from django.db.models import Sum, F, FloatField, ExpressionWrapper
-from django.db.models.functions import Coalesce
-
-
 
 def index(request):
 
@@ -164,36 +161,32 @@ def contact_saidas(request, pk):
 
     return render(request, 'contact/contact_saidas.html', context)
 
-
 def search(request):
     search_value = request.GET.get('q', '').strip()
 
     if search_value == '':
         return redirect('contact:estoque')
 
-    contacts = Contact.objects.filter(
-    show=True
-        ).filter(Q(descricao_do_produto__icontains=search_value) |
-                 Q(categoria__nome__icontains=search_value) |
-                 Q(marca__nome__icontains=search_value)).prefetch_related('entradas', 'saidas').order_by('-id')
+    try:
+        search_float = float(search_value.replace(',', '.'))
+    except ValueError:
+        search_float = None
 
+    try:
+        search_date = datetime.strptime(search_value, '%d/%m/%Y').date()
+    except ValueError:
+        search_date = None
 
+    contacts = Contact.objects.filter(show=True).prefetch_related('entradas', 'saidas').order_by('-id')
+
+    results = []
     for contact in contacts:
         entradas = contact.entradas.all() # type: ignore
         saidas = contact.saidas.all() # type: ignore
 
-        total_entradas = 0
-        total_custo = 0.0
-        total_saidas = 0
-
-        for entrada in entradas:
-            if entrada.qtd and entrada.preco_de_custo:
-                total_entradas += entrada.qtd
-                total_custo += entrada.qtd * entrada.preco_de_custo
-
-        for saida in saidas:
-            if saida.qtd:
-                total_saidas += saida.qtd
+        total_entradas = sum(e.qtd for e in entradas if e.qtd)
+        total_custo = sum(e.qtd * e.preco_de_custo for e in entradas if e.qtd and e.preco_de_custo)
+        total_saidas = sum(s.qtd for s in saidas if s.qtd)
 
         preco_medio = total_custo / total_entradas if total_entradas > 0 else 0
         saldo_estoque = total_entradas - total_saidas
@@ -205,7 +198,50 @@ def search(request):
         setattr(contact, 'preco_medio_custo', preco_medio)
         setattr(contact, 'valor_estoque', valor_estoque)
 
-    paginator = Paginator(contacts, 500)
+        match = False
+
+        # Texto
+        if search_value.lower() in str(contact.descricao_do_produto).lower():
+            match = True
+        elif search_value.lower() in str(contact.marca.nome).lower(): # type: ignore
+            match = True
+        elif search_value.lower() in str(contact.categoria.nome).lower(): # type: ignore
+            match = True
+
+        # Quantidade (saldo de estoque)
+        if search_float is not None and saldo_estoque == int(search_float):
+            match = True
+
+        # Preço de catálogo
+        if search_float is not None and contact.preco_de_catalogo is not None:
+            if abs(contact.preco_de_catalogo - search_float) < 0.01:
+                match = True
+
+        # Preço médio de custo
+        if search_float is not None:
+            if abs(preco_medio - search_float) < 0.01:
+                match = True
+
+        # Preço de custo individual
+        if search_float is not None:
+            for entrada in entradas:
+                if entrada.preco_de_custo is not None:
+                    if abs(entrada.preco_de_custo - search_float) < 0.01:
+                        match = True
+                        break
+
+        # Data de validade
+        if search_value:
+            for e in contacts:
+                if e.data_de_validade:
+                    if e.data_de_validade.strftime('%d/%m/%Y') == search_value:
+                        match = True
+                        break
+
+        if match:
+            results.append(contact)
+
+    paginator = Paginator(results, 500)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -215,4 +251,3 @@ def search(request):
     }
 
     return render(request, 'contact/estoque.html', context)
-

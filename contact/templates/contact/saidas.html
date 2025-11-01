@@ -82,7 +82,7 @@
                   {% for saidas in page_obj %}
                       <tr class="table-row">
                           <td class="table-cel">
-                              {{saidas.data_de_saida}}
+                              {{saidas.data_de_saida|date:"d/m/Y"}}
                           </td>
                           <td class="table-cel">
                               <a class="table-link" href="{% url 'contact:contact_saidas' saidas.id %}">

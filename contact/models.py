@@ -51,9 +51,9 @@ class Entradas(models.Model):
         on_delete=models.SET_NULL,
         blank=True, null=True, related_name='entradas'
     )
-    qtd = models.PositiveIntegerField(blank=True, null=True)
+    qtd = models.PositiveIntegerField(verbose_name='Quantidade', blank=True, null=True)
     preco_de_custo = models.FloatField(verbose_name='Preço de custo', blank=True, null=True)
-    data_de_validade = models.DateTimeField(default=timezone.now)
+    data_de_validade = models.DateField(default=timezone.now)
     show = models.BooleanField(default=True)
     
     def __str__(self) -> str:
@@ -69,7 +69,7 @@ class Saidas(models.Model):
         on_delete=models.SET_NULL,
         blank=True, null=True, related_name='saidas'
     )
-    qtd = models.PositiveIntegerField(blank=True, null=True)
+    qtd = models.PositiveIntegerField(verbose_name='Quantidade', blank=True, null=True)
     preco_de_venda = models.FloatField(verbose_name='Preço de venda', blank=True, null=True)
     forma_de_pagamento = models.CharField(choices=pgto_choices, max_length=50, blank=False, verbose_name='Forma de pagamento')
     cliente = models.CharField(max_length=50, blank=False, verbose_name='Cliente')
