@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, render, redirect
-from contact.forms import ContactForm, EntradasForm
+from contact.forms import ContactForm, EntradasForm, SaidasForm
 from django.urls import reverse
-from contact.models import Contact, Entradas
+from contact.models import Contact, Entradas, Saidas
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -125,6 +125,44 @@ def update_entradas(request, contact_id):
         'contact/create_entradas.html',
         context
     )
+    
+@login_required(login_url='contact:login')
+def update_saidas(request, contact_id):
+
+    saida = get_object_or_404(
+        Saidas, pk=contact_id, show=True
+    )
+    form_action = reverse('contact:update_saidas', args=(contact_id,))
+
+    if request.method == 'POST':
+        form = SaidasForm(request.POST, request.FILES, instance=saida)
+
+        context = {
+            'form': form,
+            'form_action': form_action,
+        }
+
+        if form.is_valid():
+            messages.success(request, 'Registrado com sucesso.')
+            contact = form.save()
+            return redirect('contact:saidas')
+
+        return render(
+            request,
+            'contact/create_saidas.html',
+            context
+        )
+
+    context = {
+        'form': SaidasForm(instance=saida),
+        'form_action': form_action,
+    }
+
+    return render(
+        request,
+        'contact/create_saidas.html',
+        context
+    )
 
 @login_required(login_url='contact:login')
 def create_entradas(request):
@@ -158,5 +196,40 @@ def create_entradas(request):
     return render(
         request,
         'contact/create_entradas.html',
+        context
+    )
+    
+@login_required(login_url='contact:login')
+def create_saidas(request):
+    form_action = reverse('contact:create_saidas')
+
+    if request.method == 'POST':
+        form = SaidasForm(request.POST, request.FILES)
+        context = {
+            'form': form,
+            'form_action': form_action,
+        }
+
+        if form.is_valid():
+            contact = form.save(commit=False)
+            contact.show = True
+            messages.success(request, 'Registrado com sucesso.')
+            contact.save()
+            return redirect('contact:saidas')
+
+        return render(
+            request,
+            'contact/create_saidas.html',
+            context
+        )
+
+    context = {
+        'form': SaidasForm(),
+        'form_action': form_action,
+    }
+
+    return render(
+        request,
+        'contact/create_saidas.html',
         context
     )

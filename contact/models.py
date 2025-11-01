@@ -58,3 +58,22 @@ class Entradas(models.Model):
     
     def __str__(self) -> str:
         return f'{self.descricao_do_produto}'
+    
+class Saidas(models.Model):
+    
+    pgto_choices = ('Dinheiro', 'Dinheiro'), ('Cartão', 'Cartão'), ('PIX', 'PIX'), ('Shopee', 'Shopee'), ('Brinde', 'Brinde'), ('Cartão', 'Cartão'), ('Troca', 'Troca'), ('Roubo', 'Roubo'), ('Quebrou', 'Quebrou'), ('Depósito', 'Depósito'), ('Casa', 'Casa')
+    
+    data_de_saida = models.DateTimeField(default=timezone.now)
+    descricao_do_produto = models.ForeignKey(
+        Contact,
+        on_delete=models.SET_NULL,
+        blank=True, null=True, related_name='saidas'
+    )
+    qtd = models.PositiveIntegerField(blank=True, null=True)
+    preco_de_venda = models.FloatField(verbose_name='Preço de venda', blank=True, null=True)
+    forma_de_pagamento = models.CharField(choices=pgto_choices, max_length=50, blank=False, verbose_name='Forma de pagamento')
+    cliente = models.CharField(max_length=50, blank=False, verbose_name='Cliente')
+    show = models.BooleanField(default=True)
+    
+    def __str__(self) -> str:
+        return f'{self.descricao_do_produto}'

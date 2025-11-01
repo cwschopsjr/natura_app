@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from contact.models import Contact
-from contact.models import Entradas
+from contact.models import Contact, Entradas, Saidas
 
 
 class ContactForm(forms.ModelForm):
@@ -30,3 +29,10 @@ class EntradasForm(forms.ModelForm):
         model = Entradas
         fields = ('data_de_entrada', 'descricao_do_produto',
                   'qtd', 'preco_de_custo', 'data_de_validade')
+        
+class SaidasForm(forms.ModelForm):
+
+    class Meta:
+        model = Saidas
+        fields = ('data_de_saida', 'descricao_do_produto',
+                  'qtd', 'preco_de_venda', 'forma_de_pagamento', 'cliente')

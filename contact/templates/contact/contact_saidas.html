@@ -1,0 +1,30 @@
+{% extends 'global/base_saidas.html' %}
+{% load cwsfilters %}
+
+{% block content %}
+    <div class="single-contact">
+        <h1 class="single-contact-name">
+            {{ saidas.descricao_do_produto }}
+        </h1>
+
+        {% if produto.picture %}
+            <p>
+                <img src="{{ produto.picture.url }}" class="single-contact single-contact-picture" alt="{{ produto.descricao_do_produto }}">
+            </p>
+        {% endif %}
+
+        <p class="description"><b>Data de saída:&nbsp</b> {{ saidas.data_de_saida }}</p>
+        <p class="description"><b>Descrição do produto:&nbsp</b> {{ saidas.descricao_do_produto }}</p>
+        <p class="description"><b>Quantidade:&nbsp</b> {{ saidas.qtd }}</p>
+        <p class="description"><b>Preço de venda: R$&nbsp</b> {{ saidas.preco_de_venda|floatformat:2 }}</p>
+        <p class="description"><b>Forma de pagamento:&nbsp</b> {{ saidas.forma_de_pagamento }}</p>
+        <p class="description"><b>Cliente:&nbsp</b> {{ saidas.cliente }}</p>
+
+        {% comment %} <p class="description"><b>Total entradas:&nbsp</b> {{ produto.total_entradas }}</p>
+        <p class="description"><b>Preço médio de custo:&nbsp</b> {{ produto.preco_medio_custo|floatformat:2 }}</p> {% endcomment %}
+
+        <div class="contact-links">
+            <a class="single-contact btn btn-link" href="{% url 'contact:update_saidas' saidas.id %}"><p> Editar </p></a>
+        </div>
+    </div>
+{% endblock content %}

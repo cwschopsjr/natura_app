@@ -30,3 +30,13 @@ class EntradasAdmin(admin.ModelAdmin):
     list_max_show_all = 300
     list_editable = 'show',
     list_display_links = 'descricao_do_produto',
+    
+@admin.register(models.Saidas)
+class SaidasAdmin(admin.ModelAdmin):
+    list_display = 'descricao_do_produto', 'qtd', 'preco_de_venda', 'forma_de_pagamento', 'cliente', 'show'
+    ordering = '-id',
+    search_fields = 'id', 'descricao_do_produto', 'qtd', 'preco_de_venda'
+    list_per_page = 300
+    list_max_show_all = 300
+    list_editable = 'show',
+    list_display_links = 'descricao_do_produto',

@@ -1,8 +1,7 @@
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, render, redirect
 from django.db.models import Q
-from contact.models import Contact
-from contact.models import Entradas
+from contact.models import Contact, Entradas, Saidas
 from django.db.models import Sum, F, FloatField, ExpressionWrapper
 from django.db.models.functions import Coalesce
 
@@ -30,23 +29,47 @@ def entradas(request):
 
     return render(request, 'contact/entradas.html', context)
 
+def saidas(request):
+    saidas = Saidas.objects.filter(
+        show=True).order_by('-descricao_do_produto')
+
+    paginator = Paginator(saidas, 500)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+    }
+
+    return render(request, 'contact/saidas.html', context)
+
 def estoque(request):
     contacts = Contact.objects.filter(show=True).prefetch_related('entradas').order_by('-descricao_do_produto')
 
     for contact in contacts:
         entradas = contact.entradas.all() # type: ignore
+        saidas = contact.saidas.all() # type: ignore
 
-        total_qtd = 0
+        total_entrada = 0
+        total_saida = 0
         total_custo = 0.0
 
         for entrada in entradas:
             if entrada.qtd and entrada.preco_de_custo:
-                total_qtd += entrada.qtd
+                total_entrada += entrada.qtd
                 total_custo += entrada.qtd * entrada.preco_de_custo
+        
+        for saida in saidas:
+            if saida.qtd:
+                total_saida += saida.qtd
 
-        preco_medio = total_custo / total_qtd if total_qtd > 0 else 0
+        preco_medio = total_custo / total_entrada if total_entrada > 0 else 0
+        saldo_estoque = total_entrada - total_saida
 
-        setattr(contact, 'total_entradas', total_qtd)
+
+        setattr(contact, 'total_entrada', total_entrada)
+        setattr(contact, 'total_saida', total_saida)
+        setattr(contact, 'saldo_estoque', saldo_estoque)
         setattr(contact, 'preco_medio_custo', preco_medio)
 
     paginator = Paginator(contacts, 500)
@@ -113,6 +136,33 @@ def contact_entradas(request, pk):
     }
 
     return render(request, 'contact/contact_entradas.html', context)
+
+def contact_saidas(request, pk):
+    saida = get_object_or_404(Saidas, pk=pk, show=True)
+
+    produto = saida.descricao_do_produto  # isso é o objeto Contact
+
+    saidas_do_produto = produto.saidas.all() # type: ignore
+
+    total_qtd = 0
+    total_custo = 0.0
+
+    for e in saidas_do_produto:
+        if e.qtd and e.preco_de_venda:
+            total_qtd += e.qtd
+            total_custo += e.qtd * e.preco_de_venda
+
+    preco_medio = total_custo / total_qtd if total_qtd > 0 else 0
+
+    setattr(produto, 'total_saidas', total_qtd)
+    setattr(produto, 'preco_medio_custo', preco_medio)
+
+    context = {
+        'saidas': saida,
+        'produto': produto,
+    }
+
+    return render(request, 'contact/contact_saidas.html', context)
 
 
 def search(request):
