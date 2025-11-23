@@ -8,6 +8,8 @@ static/
 media/
 contact/migrations
 project/local_settings.py
+estoque.bat
+start_django.txt
 
 # Backup files #
 *.bak
