@@ -5,6 +5,8 @@ app_name = 'contact'
 
 urlpatterns = [
     path('search/', views.search, name='search'),
+    path('entradas/search/', views.search_entradas, name='search_entradas'),
+    path('saidas/search/', views.search_saidas, name='search_saidas'),
     path('', views.index, name='index'),
     path('estoque/', views.estoque, name='estoque'),
     path('entradas/', views.entradas, name='entradas'),

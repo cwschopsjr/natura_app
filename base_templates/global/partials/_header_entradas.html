@@ -41,14 +41,14 @@
         </ul>
       </nav>
    
-    {% if user.is_authenticated %}  
+    <!-- {% if user.is_authenticated %}  
       <h5 class="header-h5">
           <a>
           Pesquisar produto
           </a>
       </h5>
       <div class="search">
-          <form action="{% url 'contact:search' %}" method="GET">
+          <form action="{% url 'contact:search_entradas' %}" method="GET">
               <input 
               type="search" 
               class="search-input" 
@@ -58,5 +58,5 @@
               value="{{ request.GET.q.strip }}">
           </form>
       </div>
-    {% endif %}
+    {% endif %} -->
 </header>

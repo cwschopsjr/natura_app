@@ -16,6 +16,8 @@
                       <th onclick="sortTable(1)" class="table-header">Descrição do produto</th>
                       <th onclick="sortTable(2)" class="table-header">Quantidade</th>
                       <th onclick="sortTable(3)" class="table-header">Preço de venda</th>
+                      <th onclick="sortTable(3)" class="table-header">Preço de custo</th>
+                      <th onclick="sortTable(3)" class="table-header">Lucro</th>
                       <th onclick="sortTable(3)" class="table-header">Forma de pagamento</th>
                       <th onclick="sortTable(3)" class="table-header">Cliente</th>
                   </tr>
@@ -93,7 +95,13 @@
                               {{saidas.qtd}}
                           </td>
                           <td class="table-cel">
-                              {{saidas.preco_de_venda|formata_preco}}
+                              R$ {{saidas.preco_de_venda|floatformat:2}}
+                          </td>
+                          <td class="table-cel">
+                              R$ {{saidas.preco_de_custo_registrado|floatformat:2}}
+                          </td>
+                          <td class="table-cel">
+                              R$ {{saidas.lucro|floatformat:2}}
                           </td>
                           <td class="table-cel">
                               {{saidas.forma_de_pagamento}}

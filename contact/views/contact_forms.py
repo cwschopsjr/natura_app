@@ -211,25 +211,33 @@ def create_saidas(request):
         }
 
         if form.is_valid():
-            contact = form.save(commit=False)
-            contact.show = True
-            messages.success(request, 'Registrado com sucesso.')
-            contact.save()
+            saida = form.save(commit=False)
+            saida.show = True
+
+            # calcula o custo médio do produto relacionado
+            produto = saida.descricao_do_produto  # ForeignKey para Contact
+            entradas = produto.entradas.all()
+
+            total_qtd = 0
+            total_custo = 0.0
+            for entrada in entradas:
+                if entrada.qtd and entrada.preco_de_custo:
+                    total_qtd += entrada.qtd
+                    total_custo += entrada.qtd * entrada.preco_de_custo
+
+            preco_medio_custo = total_custo / total_qtd if total_qtd > 0 else 0
+
+            # grava o custo médio vigente no momento da saída
+            saida.preco_de_custo_registrado = preco_medio_custo
+
+            saida.save()
+            messages.success(request, 'Saída registrada com sucesso.')
             return redirect('contact:saidas')
 
-        return render(
-            request,
-            'contact/create_saidas.html',
-            context
-        )
+        return render(request, 'contact/create_saidas.html', context)
 
     context = {
         'form': SaidasForm(),
         'form_action': form_action,
     }
-
-    return render(
-        request,
-        'contact/create_saidas.html',
-        context
-    )
+    return render(request, 'contact/create_saidas.html', context)
