@@ -21,6 +21,7 @@ class Categoria(models.Model):
 class Contact(models.Model):
     class Meta:
         verbose_name = 'Produto'
+        ordering = ['descricao_do_produto']
         # unique_together = ('descricao_do_produto', 'marca', 'categoria')
 
     marca = models.ForeignKey(
