@@ -15,7 +15,7 @@ def index(request):
 
 def entradas(request):
     entradas = Entradas.objects.filter(
-        show=True).order_by('-descricao_do_produto')
+        show=True).order_by('-data_de_entrada')
 
     paginator = Paginator(entradas, 500)
     page_number = request.GET.get('page')
@@ -28,7 +28,7 @@ def entradas(request):
     return render(request, 'contact/entradas.html', context)
 
 def saidas(request):
-    saidas = Saidas.objects.filter(show=True).select_related('descricao_do_produto').order_by('-descricao_do_produto')
+    saidas = Saidas.objects.filter(show=True).select_related('descricao_do_produto').order_by('-data_de_saida')
 
     # calcular preço médio de custo apenas para exibir no produto
     for saida in saidas:
@@ -57,7 +57,7 @@ def saidas(request):
     return render(request, 'contact/saidas.html', context)
 
 def estoque(request):
-    contacts = Contact.objects.filter(show=True).prefetch_related('entradas').order_by('-descricao_do_produto')
+    contacts = Contact.objects.filter(show=True).prefetch_related('entradas').order_by('descricao_do_produto')
 
     for contact in contacts:
         entradas = contact.entradas.all() # type: ignore

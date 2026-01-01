@@ -2,6 +2,10 @@ from django.db import models
 from django.utils import timezone
     
 class Marca(models.Model):
+    
+    class Meta:
+        ordering = ['nome']
+        
     nome = models.CharField(max_length=50)
 
     def __str__(self) -> str:
@@ -11,7 +15,8 @@ class Categoria(models.Model):
     
     class Meta:
         verbose_name = "Categoria"          
-        verbose_name_plural = "Categorias"  
+        verbose_name_plural = "Categorias"
+        ordering = ['nome']
 
     nome = models.CharField(max_length=50)
 

@@ -4,17 +4,17 @@ from contact import models
 @admin.register(models.Marca)
 class MarcaAdmin(admin.ModelAdmin):
     list_display = 'nome',
-    ordering = '-id',
+    ordering = 'nome',
     
 @admin.register(models.Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
     list_display = 'nome',
-    ordering = '-id',
+    ordering = 'nome',
 
 @admin.register(models.Contact)
 class ContactAdmin(admin.ModelAdmin):
     list_display = 'descricao_do_produto', 'marca', 'categoria', 'quantidade_em_estoque', 'preco_medio_custo', 'preco_de_catalogo', 'data_de_validade', 'show'
-    ordering = '-id',
+    ordering = 'descricao_do_produto',
     search_fields = 'id', 'descricao_do_produto', 'marca__nome', 'categoria__nome', 'preco_de_catalogo', 'data_de_validade'
     list_per_page = 300
     list_max_show_all = 300

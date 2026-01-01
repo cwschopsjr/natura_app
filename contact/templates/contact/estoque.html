@@ -22,7 +22,7 @@
                   </tr>
               </thead>
 
-              <script>
+              {% comment %} <script>
                   function sortTable(n) {
                     var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
                     table = document.getElementById("table-index");
@@ -77,7 +77,7 @@
                       }
                     }
                   }
-                  </script>
+                  </script> {% endcomment %}
 
               <tbody>
                   {% for contact in page_obj %}
