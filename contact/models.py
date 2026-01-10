@@ -113,13 +113,12 @@ class Saidas(models.Model):
         return f'{self.descricao_do_produto}'
 
     def save(self, *args, **kwargs):
-        """
-        Calcula e salva o lucro no banco de dados
-        sempre que a saída for criada ou atualizada.
-        """
-        if self.preco_de_venda and self.preco_de_custo_registrado is not None:
-            self.lucro = self.preco_de_venda - self.preco_de_custo_registrado
+    
+        if self.qtd and self.preco_de_venda and self.preco_de_custo_registrado is not None:
+            total_custo = self.qtd * self.preco_de_custo_registrado
+            self.lucro = self.preco_de_venda - total_custo
         else:
             self.lucro = 0
         super().save(*args, **kwargs)
+
 
