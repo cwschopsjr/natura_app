@@ -1,5 +1,7 @@
 from django.contrib import admin
 from contact import models
+from django.utils.html import format_html
+from django.utils.formats import number_format
 
 @admin.register(models.Marca)
 class MarcaAdmin(admin.ModelAdmin):
@@ -13,11 +15,11 @@ class CategoriaAdmin(admin.ModelAdmin):
 
 @admin.register(models.Contact)
 class ContactAdmin(admin.ModelAdmin):
-    list_display = 'descricao_do_produto', 'marca', 'categoria', 'quantidade_em_estoque', 'preco_medio_custo', 'preco_de_catalogo', 'data_de_validade', 'show'
+    list_display = 'descricao_do_produto', 'marca', 'categoria', 'quantidade_em_estoque', 'preco_medio_custo', 'preco_de_catalogo_formatado', 'data_de_validade', 'show'
     ordering = 'descricao_do_produto',
     search_fields = 'id', 'descricao_do_produto', 'marca__nome', 'categoria__nome', 'preco_de_catalogo', 'data_de_validade'
-    list_per_page = 300
-    list_max_show_all = 300
+    list_per_page = 800
+    list_max_show_all = 800
     list_editable = 'show',
     list_display_links = 'descricao_do_produto',
     
@@ -40,7 +42,10 @@ class ContactAdmin(admin.ModelAdmin):
                 total_qtd += entrada.qtd
                 total_custo += entrada.qtd * entrada.preco_de_custo
 
-        return round(total_custo / total_qtd, 2) if total_qtd > 0 else "-"
+        if total_qtd > 0:
+            valor = total_custo / total_qtd
+            return format_html("R$ {}", number_format(valor, decimal_pos=2, use_l10n=True))
+        return "-"
     
     @admin.display(description="Quantidade em Estoque")
     def quantidade_em_estoque(self, obj):
@@ -53,9 +58,15 @@ class ContactAdmin(admin.ModelAdmin):
         saldo = total_entrada - total_saida
         return saldo if saldo >= 0 else 0
     
+    @admin.display(description="Preço de Catálogo")
+    def preco_de_catalogo_formatado(self, obj):
+        if obj.preco_de_catalogo is not None:
+            return format_html("R$ {}", number_format(obj.preco_de_catalogo, decimal_pos=2, use_l10n=True))
+        return "-"
+    
 @admin.register(models.Entradas)
 class EntradasAdmin(admin.ModelAdmin):
-    list_display = 'data_de_entrada', 'produto_nome', 'qtd', 'preco_de_custo', 'data_de_validade', 'show'
+    list_display = 'data_de_entrada', 'produto_nome', 'qtd', 'preco_de_custo_formatado', 'data_de_validade', 'show'
     ordering = '-id',
     search_fields = 'data_de_entrada', 'id', 'descricao_do_produto__descricao_do_produto', 'qtd', 'preco_de_custo'
     list_per_page = 300
@@ -67,11 +78,15 @@ class EntradasAdmin(admin.ModelAdmin):
     def produto_nome(self, obj):
         return obj.descricao_do_produto.descricao_do_produto if obj.descricao_do_produto else "-"
 
-
+    @admin.display(description="Preço de Catálogo")
+    def preco_de_custo_formatado(self, obj):
+        if obj.preco_de_custo is not None:
+            return format_html("R$ {}", number_format(obj.preco_de_custo, decimal_pos=2, use_l10n=True))
+        return "-"
     
 @admin.register(models.Saidas)
 class SaidasAdmin(admin.ModelAdmin):
-    list_display = 'data_de_saida', 'produto_nome', 'qtd', 'preco_de_venda', 'forma_de_pagamento', 'cliente', 'show'
+    list_display = 'data_de_saida', 'produto_nome', 'qtd', 'preco_de_venda_formatado', 'forma_de_pagamento', 'cliente', 'show'
     ordering = '-id',
     search_fields = 'data_de_saida', 'id', 'descricao_do_produto__descricao_do_produto', 'qtd', 'preco_de_venda'
     list_per_page = 300
@@ -83,3 +98,8 @@ class SaidasAdmin(admin.ModelAdmin):
     def produto_nome(self, obj):
         return obj.descricao_do_produto.descricao_do_produto if obj.descricao_do_produto else "-"
 
+    @admin.display(description="Preço de Catálogo")
+    def preco_de_venda_formatado(self, obj):
+        if obj.preco_de_venda is not None:
+            return format_html("R$ {}", number_format(obj.preco_de_venda, decimal_pos=2, use_l10n=True))
+        return "-"

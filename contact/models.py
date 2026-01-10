@@ -42,7 +42,7 @@ class Contact(models.Model):
     )
     
     descricao_do_produto = models.CharField(
-        max_length=80, blank=True, null=True)
+        max_length=100, blank=True, null=True)
     # qtd = models.CharField(max_length=4, blank=True, null=True)
     # preco_de_custo = models.FloatField(verbose_name='Preço de custo', blank=True, null=True)
     preco_de_catalogo = models.FloatField(verbose_name='Preço de catálogo', blank=True, null=True)

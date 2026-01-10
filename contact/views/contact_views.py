@@ -85,7 +85,7 @@ def estoque(request):
         setattr(contact, 'saldo_estoque', saldo_estoque)
         setattr(contact, 'preco_medio_custo', preco_medio)
 
-    paginator = Paginator(contacts, 500)
+    paginator = Paginator(contacts, 800)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
