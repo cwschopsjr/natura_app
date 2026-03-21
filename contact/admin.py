@@ -88,7 +88,7 @@ class EntradasAdmin(admin.ModelAdmin):
 class SaidasAdmin(admin.ModelAdmin):
     list_display = 'data_de_saida', 'produto_nome', 'qtd', 'preco_de_venda_formatado', 'forma_de_pagamento', 'cliente', 'show'
     ordering = '-id',
-    search_fields = 'data_de_saida', 'id', 'descricao_do_produto__descricao_do_produto', 'qtd', 'preco_de_venda'
+    search_fields = 'data_de_saida', 'id', 'descricao_do_produto__descricao_do_produto', 'qtd', 'cliente', 'preco_de_venda'
     list_per_page = 300
     list_max_show_all = 300
     list_editable = 'show',
