@@ -78,7 +78,7 @@ class EntradasAdmin(admin.ModelAdmin):
     def produto_nome(self, obj):
         return obj.descricao_do_produto.descricao_do_produto if obj.descricao_do_produto else "-"
 
-    @admin.display(description="Preço de Catálogo")
+    @admin.display(description="Preço de Custo")
     def preco_de_custo_formatado(self, obj):
         if obj.preco_de_custo is not None:
             return format_html("R$ {}", number_format(obj.preco_de_custo, decimal_pos=2, use_l10n=True))
@@ -98,7 +98,7 @@ class SaidasAdmin(admin.ModelAdmin):
     def produto_nome(self, obj):
         return obj.descricao_do_produto.descricao_do_produto if obj.descricao_do_produto else "-"
 
-    @admin.display(description="Preço de Catálogo")
+    @admin.display(description="Preço de Venda")
     def preco_de_venda_formatado(self, obj):
         if obj.preco_de_venda is not None:
             return format_html("R$ {}", number_format(obj.preco_de_venda, decimal_pos=2, use_l10n=True))

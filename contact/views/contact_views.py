@@ -57,33 +57,38 @@ def saidas(request):
     return render(request, 'contact/saidas.html', context)
 
 def estoque(request):
-    contacts = Contact.objects.filter(show=True).prefetch_related('entradas').order_by('descricao_do_produto')
+    contacts = Contact.objects.filter(show=True).prefetch_related('entradas', 'saidas').order_by('descricao_do_produto')
 
     for contact in contacts:
-        entradas = contact.entradas.all() # type: ignore
-        saidas = contact.saidas.all() # type: ignore
+        entradas = list(contact.entradas.all().order_by('data_de_entrada')) # type: ignore
+        saidas = list(contact.saidas.all().order_by('data_de_saida')) # type: ignore
 
-        total_entrada = 0
-        total_saida = 0
-        total_custo = 0.0
-
-        for entrada in entradas:
-            if entrada.qtd and entrada.preco_de_custo:
-                total_entrada += entrada.qtd
-                total_custo += entrada.qtd * entrada.preco_de_custo
-        
+        # aplica saídas consumindo entradas (FIFO)
         for saida in saidas:
-            if saida.qtd:
-                total_saida += saida.qtd
+            qtd_saida = saida.qtd or 0
+            for entrada in entradas:
+                if qtd_saida <= 0:
+                    break
+                if entrada.qtd and entrada.qtd > 0:
+                    if entrada.qtd >= qtd_saida:
+                        entrada.qtd -= qtd_saida
+                        qtd_saida = 0
+                    else:
+                        qtd_saida -= entrada.qtd
+                        entrada.qtd = 0
 
-        preco_medio = total_custo / total_entrada if total_entrada > 0 else 0
-        saldo_estoque = total_entrada - total_saida
+        # agora só restam entradas não consumidas
+        total_entrada = sum(e.qtd or 0 for e in entradas)
+        total_custo = sum((e.qtd or 0) * (e.preco_de_custo or 0) for e in entradas)
+        preco_medio_custo = total_custo / total_entrada if total_entrada > 0 else 0
 
+        saldo_estoque = total_entrada
+        total_saida = sum(s.qtd or 0 for s in saidas)
 
-        setattr(contact, 'total_entrada', total_entrada)
+        setattr(contact, 'total_entrada', sum(e.qtd or 0 for e in entradas))
         setattr(contact, 'total_saida', total_saida)
         setattr(contact, 'saldo_estoque', saldo_estoque)
-        setattr(contact, 'preco_medio_custo', preco_medio)
+        setattr(contact, 'preco_medio_custo', preco_medio_custo)
 
     paginator = Paginator(contacts, 800)
     page_number = request.GET.get('page')
@@ -96,36 +101,46 @@ def estoque(request):
 
     return render(request, 'contact/estoque.html', context)
 
+from django.shortcuts import get_object_or_404, render
+from contact.models import Contact
+
 def contact(request, contact_id):
     single_contact = get_object_or_404(Contact, pk=contact_id, show=True)
 
-    entradas = single_contact.entradas.all()  # type: ignore
-    saidas = single_contact.saidas.all()      # type: ignore
+    entradas = list(single_contact.entradas.all().order_by('data_de_entrada')) # type: ignore
+    saidas = list(single_contact.saidas.all().order_by('data_de_saida')) # type: ignore
 
-    total_entrada = 0
-    total_saida = 0
-    total_custo = 0.0
-
-    # somatório das entradas
+    # criar lotes de entradas
+    lotes = []
     for entrada in entradas:
         if entrada.qtd and entrada.preco_de_custo:
-            total_entrada += entrada.qtd
-            total_custo += entrada.qtd * entrada.preco_de_custo
+            lotes.append({
+                "qtd": entrada.qtd,
+                "preco": entrada.preco_de_custo
+            })
 
-    # somatório das saídas
+    # consumir saídas (FIFO)
     for saida in saidas:
-        if saida.qtd:
-            total_saida += saida.qtd
+        qtd_saida = saida.qtd or 0
+        while qtd_saida > 0 and lotes:
+            lote = lotes[0]
+            if lote["qtd"] > qtd_saida:
+                lote["qtd"] -= qtd_saida
+                qtd_saida = 0
+            else:
+                qtd_saida -= lote["qtd"]
+                lotes.pop(0)
 
-    # cálculos finais
-    preco_medio = total_custo / total_entrada if total_entrada > 0 else 0
-    saldo_estoque = total_entrada - total_saida
+    # agora só restam os lotes ainda em estoque
+    saldo_estoque = sum(l["qtd"] for l in lotes)
+    total_custo = sum(l["qtd"] * l["preco"] for l in lotes)
+    preco_medio_custo = total_custo / saldo_estoque if saldo_estoque > 0 else 0
 
     # adicionando atributos ao objeto
-    setattr(single_contact, 'total_entradas', total_entrada)
-    setattr(single_contact, 'total_saidas', total_saida)
+    setattr(single_contact, 'total_entradas', sum(e.qtd or 0 for e in entradas))
+    setattr(single_contact, 'total_saidas', sum(s.qtd or 0 for s in saidas))
     setattr(single_contact, 'saldo_estoque', saldo_estoque)
-    setattr(single_contact, 'preco_medio_custo', preco_medio)
+    setattr(single_contact, 'preco_medio_custo', preco_medio_custo)
 
     product_name = f'{single_contact.descricao_do_produto} - '
 
