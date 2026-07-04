@@ -15,38 +15,63 @@ class CategoriaAdmin(admin.ModelAdmin):
 
 @admin.register(models.Contact)
 class ContactAdmin(admin.ModelAdmin):
-    list_display = 'descricao_do_produto', 'marca', 'categoria', 'quantidade_em_estoque', 'preco_medio_custo', 'preco_de_catalogo_formatado', 'data_de_validade', 'show'
-    ordering = 'descricao_do_produto',
-    search_fields = 'id', 'descricao_do_produto', 'marca__nome', 'categoria__nome', 'preco_de_catalogo', 'data_de_validade'
+    list_display = (
+        'descricao_do_produto',
+        'marca',
+        'categoria',
+        'quantidade_em_estoque',
+        'preco_medio_custo',
+        'preco_de_catalogo_formatado',
+        'data_de_validade',
+        'show',
+    )
+    ordering = ('descricao_do_produto',)
+    search_fields = (
+        'id',
+        'descricao_do_produto',
+        'marca__nome',
+        'categoria__nome',
+        'preco_de_catalogo',
+        'data_de_validade',
+    )
     list_per_page = 800
     list_max_show_all = 800
-    list_editable = 'show',
-    list_display_links = 'descricao_do_produto',
-    
-    # def preco_de_custo(self, obj):
-    #     entrada = obj.entradas.order_by('-data_de_entrada').first()
-    #     if entrada and entrada.preco_de_custo is not None:
-    #         return entrada.preco_de_custo
-    #     return "-"
-    # preco_de_custo.short_description = "Preço de Custo"
-    # preco_de_custo.admin_order_field = 'entradas__preco_de_custo'
-    
+    list_editable = ('show',)
+    list_display_links = ('descricao_do_produto',)
+
     @admin.display(description="Preço Médio de Custo")
     def preco_medio_custo(self, obj):
-        entradas = obj.entradas.all()
-        total_qtd = 0
-        total_custo = 0.0
+        entradas = list(obj.entradas.all().order_by('data_de_entrada'))
+        saidas = list(obj.saidas.all().order_by('data_de_saida'))
 
+        # criar lotes de entradas
+        lotes = []
         for entrada in entradas:
             if entrada.qtd and entrada.preco_de_custo:
-                total_qtd += entrada.qtd
-                total_custo += entrada.qtd * entrada.preco_de_custo
+                lotes.append({
+                    "qtd": entrada.qtd,
+                    "preco": entrada.preco_de_custo
+                })
 
-        if total_qtd > 0:
-            valor = total_custo / total_qtd
-            return format_html("R$ {}", number_format(valor, decimal_pos=2, use_l10n=True))
-        return "-"
-    
+        # consumir saídas (FIFO)
+        for saida in saidas:
+            qtd_saida = saida.qtd or 0
+            while qtd_saida > 0 and lotes:
+                lote = lotes[0]
+                if lote["qtd"] > qtd_saida:
+                    lote["qtd"] -= qtd_saida
+                    qtd_saida = 0
+                else:
+                    qtd_saida -= lote["qtd"]
+                    lotes.pop(0)
+
+        # agora só restam os lotes ainda em estoque
+        saldo_estoque = sum(l["qtd"] for l in lotes)
+        total_custo = sum(l["qtd"] * l["preco"] for l in lotes)
+        preco_medio_custo = total_custo / saldo_estoque if saldo_estoque > 0 else 0
+
+        return format_html("R$ {}", number_format(preco_medio_custo, decimal_pos=2, use_l10n=True))
+
     @admin.display(description="Quantidade em Estoque")
     def quantidade_em_estoque(self, obj):
         entradas = obj.entradas.all()
@@ -57,7 +82,7 @@ class ContactAdmin(admin.ModelAdmin):
 
         saldo = total_entrada - total_saida
         return saldo if saldo >= 0 else 0
-    
+
     @admin.display(description="Preço de Catálogo")
     def preco_de_catalogo_formatado(self, obj):
         if obj.preco_de_catalogo is not None:

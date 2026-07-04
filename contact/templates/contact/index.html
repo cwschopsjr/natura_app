@@ -8,13 +8,14 @@
 
     {% include 'global/partials/_messages.html' %}
 
-    <div class="imagem logo">
-      <p>
-        <a>
-          <img src="media/logo.png" alt="Logo">
-        </a>
-      </p>
-    </div>
+{% load static %}
+<div class="imagem logo">
+  <p>
+    <a>
+      <img src="{% static 'global/assets/img/logo.png' %}" alt="Logo" width="200 height-200">
+    </a>
+  </p>
+</div>
 
     {% comment %} <main>
         {% block content %}{% endblock content %}

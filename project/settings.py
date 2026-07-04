@@ -11,10 +11,71 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+# ==============================================================================
+# SOLUÇÃO DEFINITIVA: CORREÇÃO DE DATAS (MIGRAÇÃO SQLITE -> MYSQL)
+# ==============================================================================
+import datetime
+import pymysql
+from dateutil import parser
+from django.db.backends.mysql import operations
+from django.utils import timezone
+from typing import Any
+
+# 1. Inicializa o PyMySQL como o driver oficial do Django
+pymysql.install_as_MySQLdb()
+
+# 2. Corretor para DateTimeField (Campos com Data e Hora)
+def convert_datetime_safe(self: Any, value: Any, expression: Any, connection: Any) -> Any:
+    if isinstance(value, str):
+        try:
+            value = parser.parse(value)
+        except Exception:
+            pass
+            
+    if isinstance(value, datetime.datetime):
+        if value.tzinfo is None:
+            value = timezone.make_aware(value, connection.timezone)
+        
+    return value
+
+# Aplica o corretor nativo de DateTimeField do Django
+operations.DatabaseOperations.convert_datetimefield_value = convert_datetime_safe
+
+
+# 3. Corretor para DateField (Campos de Data Pura, como a sua validade)
+def convert_date_safe_converter(value: Any, expression: Any, connection: Any) -> Any:
+    if isinstance(value, str):
+        try:
+            # Converte o texto do banco e extrai apenas o objeto date do Python
+            return parser.parse(value).date()
+        except Exception:
+            return value
+    return value
+
+# 4. Injeção dinâmica no mapeamento de consultas do Django
+original_get_db_converters = operations.DatabaseOperations.get_db_converters
+
+def custom_get_db_converters(self: Any, expression: Any) -> list:
+    converters = original_get_db_converters(self, expression)
+    internal_type = expression.output_field.get_internal_type()
+    
+    # Se o seu Model do Django diz que o campo é um DateField, nós forçamos
+    # a conversão da string, não importa se no MySQL a coluna é DATE ou VARCHAR.
+    if internal_type == 'DateField':
+        converters.append(convert_date_safe_converter)
+        
+    return converters
+
+# Aplica o patch global de conversores no Django
+operations.DatabaseOperations.get_db_converters = custom_get_db_converters
+# ==============================================================================
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Aumenta o limite para 5000 campos (o padrão é 1000)
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -78,8 +139,16 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'banco_migrado',
+        'USER': 'root',
+        'PASSWORD': 'iT$669722',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset': 'utf8mb4',
+        }
     }
 }
 
