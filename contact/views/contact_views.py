@@ -17,7 +17,7 @@ def entradas(request):
     entradas = Entradas.objects.filter(
         show=True).order_by('-data_de_entrada')
 
-    paginator = Paginator(entradas, 500)
+    paginator = Paginator(entradas, 50)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -30,24 +30,39 @@ def entradas(request):
 def saidas(request):
     saidas = Saidas.objects.filter(show=True).select_related('descricao_do_produto').order_by('-data_de_saida')
 
-    # calcular preço médio de custo apenas para exibir no produto
     for saida in saidas:
-        entradas = saida.descricao_do_produto.entradas.all() #type: ignore
-        total_qtd = 0
-        total_custo = 0.0
+        entradas = list(saida.descricao_do_produto.entradas.all().order_by('data_de_entrada'))  # type: ignore
+        saidas_produto = list(saida.descricao_do_produto.saidas.all().order_by('data_de_saida'))  # type: ignore
 
+        # criar lotes de entradas
+        lotes = []
         for entrada in entradas:
             if entrada.qtd and entrada.preco_de_custo:
-                total_qtd += entrada.qtd
-                total_custo += entrada.qtd * entrada.preco_de_custo
+                lotes.append({
+                    "qtd": entrada.qtd,
+                    "preco": entrada.preco_de_custo
+                })
 
-        preco_medio_custo = total_custo / total_qtd if total_qtd > 0 else 0
-        setattr(saida.descricao_do_produto, 'preco_medio_custo', preco_medio_custo)
+        # consumir saídas (FIFO)
+        for s in saidas_produto:
+            qtd_saida = s.qtd or 0
+            while qtd_saida > 0 and lotes:
+                lote = lotes[0]
+                if lote["qtd"] > qtd_saida:
+                    lote["qtd"] -= qtd_saida
+                    qtd_saida = 0
+                else:
+                    qtd_saida -= lote["qtd"]
+                    lotes.pop(0)
 
-        # ❌ NÃO faça setattr(saida, 'lucro', ...)
-        # O lucro já é calculado pela property no model
+        # agora só restam os lotes ainda em estoque
+        saldo_estoque = sum(l["qtd"] for l in lotes)
+        total_custo = sum(l["qtd"] * l["preco"] for l in lotes)
+        preco_medio_custo = total_custo / saldo_estoque if saldo_estoque > 0 else 0
 
-    paginator = Paginator(saidas, 500)
+        setattr(saida.descricao_do_produto, 'preco_medio_custo', round(preco_medio_custo, 2))
+
+    paginator = Paginator(saidas, 50)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
@@ -95,7 +110,7 @@ def estoque(request):
         setattr(contact, 'saldo_estoque', saldo_estoque)
         setattr(contact, 'preco_medio_custo', round(preco_medio_custo, 2))
 
-    paginator = Paginator(contacts, 800)
+    paginator = Paginator(contacts, 50)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 

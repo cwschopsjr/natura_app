@@ -34,7 +34,7 @@ class ContactAdmin(admin.ModelAdmin):
         'preco_de_catalogo',
         'data_de_validade',
     )
-    list_per_page = 800
+    list_per_page = 50
     list_max_show_all = 800
     list_editable = ('show',)
     list_display_links = ('descricao_do_produto',)
@@ -94,7 +94,7 @@ class EntradasAdmin(admin.ModelAdmin):
     list_display = 'data_de_entrada', 'produto_nome', 'qtd', 'preco_de_custo_formatado', 'data_de_validade', 'show'
     ordering = '-id',
     search_fields = 'data_de_entrada', 'id', 'descricao_do_produto__descricao_do_produto', 'qtd', 'preco_de_custo'
-    list_per_page = 300
+    list_per_page = 50
     list_max_show_all = 300
     list_editable = 'show',
     list_display_links = 'produto_nome',
@@ -111,14 +111,34 @@ class EntradasAdmin(admin.ModelAdmin):
     
 @admin.register(models.Saidas)
 class SaidasAdmin(admin.ModelAdmin):
-    list_display = 'data_de_saida', 'produto_nome', 'qtd', 'preco_de_venda_formatado', 'forma_de_pagamento', 'cliente', 'show'
-    ordering = '-id',
-    search_fields = 'data_de_saida', 'id', 'descricao_do_produto__descricao_do_produto', 'qtd', 'cliente', 'preco_de_venda'
-    list_per_page = 300
+    list_display = (
+        'data_de_saida',
+        'produto_nome',
+        'qtd',
+        'preco_de_venda_formatado',
+        'preco_de_custo_formatado',
+        'lucro_formatado',
+        'forma_de_pagamento',
+        'cliente',
+        'show',
+    )
+    ordering = ('-id',)
+    search_fields = (
+        'data_de_saida',
+        'id',
+        'descricao_do_produto__descricao_do_produto',
+        'qtd',
+        'cliente',
+        'preco_de_venda',
+    )
+    list_per_page = 50
     list_max_show_all = 300
-    list_editable = 'show',
-    list_display_links = 'produto_nome',
-    
+    list_editable = ('show',)
+    list_display_links = ('produto_nome',)
+
+    # ❌ remove campos do formulário
+    exclude = ('preco_de_custo_registrado', 'lucro')
+
     @admin.display(description="Descrição do Produto", ordering='descricao_do_produto__descricao_do_produto')
     def produto_nome(self, obj):
         return obj.descricao_do_produto.descricao_do_produto if obj.descricao_do_produto else "-"
@@ -127,4 +147,16 @@ class SaidasAdmin(admin.ModelAdmin):
     def preco_de_venda_formatado(self, obj):
         if obj.preco_de_venda is not None:
             return format_html("R$ {}", number_format(obj.preco_de_venda, decimal_pos=2, use_l10n=True))
+        return "-"
+
+    @admin.display(description="Preço de Custo Médio")
+    def preco_de_custo_formatado(self, obj):
+        if obj.preco_de_custo_registrado is not None:
+            return format_html("R$ {}", number_format(obj.preco_de_custo_registrado, decimal_pos=2, use_l10n=True))
+        return "-"
+
+    @admin.display(description="Lucro")
+    def lucro_formatado(self, obj):
+        if obj.lucro is not None:
+            return format_html("R$ {}", number_format(obj.lucro, decimal_pos=2, use_l10n=True))
         return "-"

@@ -76,11 +76,10 @@ class Entradas(models.Model):
         return f'{self.descricao_do_produto}'
     
 class Saidas(models.Model):
-    
     class Meta:
-        verbose_name = "Saída"          
+        verbose_name = "Saída"
         verbose_name_plural = "Saídas"
-        
+
     pgto_choices = (
         ('Dinheiro', 'Dinheiro'),
         ('Cartão', 'Cartão'),
@@ -104,7 +103,7 @@ class Saidas(models.Model):
     qtd = models.PositiveIntegerField(verbose_name='Quantidade', blank=True, null=True)
     preco_de_venda = models.FloatField(verbose_name='Preço de venda', blank=True, null=True)
     preco_de_custo_registrado = models.FloatField(verbose_name='Preço de custo na saída', blank=True, null=True)
-    lucro = models.FloatField(verbose_name='Lucro', blank=True, null=True)  # <-- novo campo persistido
+    lucro = models.FloatField(verbose_name='Lucro', blank=True, null=True)
     forma_de_pagamento = models.CharField(choices=pgto_choices, max_length=50, verbose_name='Forma de pagamento')
     cliente = models.CharField(max_length=50, verbose_name='Cliente')
     show = models.BooleanField(default=True)
@@ -113,12 +112,40 @@ class Saidas(models.Model):
         return f'{self.descricao_do_produto}'
 
     def save(self, *args, **kwargs):
-    
-        if self.qtd and self.preco_de_venda and self.preco_de_custo_registrado is not None:
-            total_custo = self.qtd * self.preco_de_custo_registrado
-            self.lucro = self.preco_de_venda - total_custo
+        # calcula custo médio FIFO
+        entradas = list(self.descricao_do_produto.entradas.all().order_by('data_de_entrada')) # type: ignore
+        saidas = list(self.descricao_do_produto.saidas.exclude(pk=self.pk).all().order_by('data_de_saida')) # type: ignore
+
+        lotes = []
+        for entrada in entradas:
+            if entrada.qtd and entrada.preco_de_custo:
+                lotes.append({"qtd": entrada.qtd, "preco": entrada.preco_de_custo})
+
+        for s in saidas:
+            qtd_saida = s.qtd or 0
+            while qtd_saida > 0 and lotes:
+                lote = lotes[0]
+                if lote["qtd"] > qtd_saida:
+                    lote["qtd"] -= qtd_saida
+                    qtd_saida = 0
+                else:
+                    qtd_saida -= lote["qtd"]
+                    lotes.pop(0)
+
+        saldo_estoque = sum(l["qtd"] for l in lotes)
+        total_custo = sum(l["qtd"] * l["preco"] for l in lotes)
+        preco_medio_custo = total_custo / saldo_estoque if saldo_estoque > 0 else 0
+
+        # grava custo médio calculado
+        self.preco_de_custo_registrado = round(preco_medio_custo, 2)
+
+        # calcula lucro com base nesse custo
+        if self.qtd and self.preco_de_venda:
+            total_custo_saida = self.qtd * self.preco_de_custo_registrado
+            self.lucro = (self.preco_de_venda * self.qtd) - total_custo_saida
         else:
             self.lucro = 0
+
         super().save(*args, **kwargs)
 
 
