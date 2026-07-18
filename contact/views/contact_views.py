@@ -201,22 +201,39 @@ def contact_entradas(request, pk):
 def contact_saidas(request, pk):
     saida = get_object_or_404(Saidas, pk=pk, show=True)
 
-    produto = saida.descricao_do_produto  # isso é o objeto Contact
+    produto = saida.descricao_do_produto  # objeto Contact
 
-    saidas_do_produto = produto.saidas.all() # type: ignore
+    entradas = list(produto.entradas.all().order_by('data_de_entrada'))  # type: ignore
+    saidas_produto = list(produto.saidas.all().order_by('data_de_saida'))  # type: ignore
 
-    total_qtd = 0
-    total_custo = 0.0
+    # criar lotes de entradas
+    lotes = []
+    for entrada in entradas:
+        if entrada.qtd and entrada.preco_de_custo:
+            lotes.append({
+                "qtd": entrada.qtd,
+                "preco": entrada.preco_de_custo
+            })
 
-    for e in saidas_do_produto:
-        if e.qtd and e.preco_de_venda:
-            total_qtd += e.qtd
-            total_custo += e.qtd * e.preco_de_venda
+    # consumir saídas (FIFO)
+    for s in saidas_produto:
+        qtd_saida = s.qtd or 0
+        while qtd_saida > 0 and lotes:
+            lote = lotes[0]
+            if lote["qtd"] > qtd_saida:
+                lote["qtd"] -= qtd_saida
+                qtd_saida = 0
+            else:
+                qtd_saida -= lote["qtd"]
+                lotes.pop(0)
 
-    preco_medio = total_custo / total_qtd if total_qtd > 0 else 0
+    # saldo e custo médio
+    saldo_estoque = sum(l["qtd"] for l in lotes)
+    total_custo = sum(l["qtd"] * l["preco"] for l in lotes)
+    preco_medio_custo = total_custo / saldo_estoque if saldo_estoque > 0 else 0
 
-    setattr(produto, 'total_saidas', total_qtd)
-    setattr(produto, 'preco_medio_custo', preco_medio)
+    setattr(produto, 'saldo_estoque', saldo_estoque)
+    setattr(produto, 'preco_medio_custo', round(preco_medio_custo, 2))
 
     context = {
         'saidas': saida,
