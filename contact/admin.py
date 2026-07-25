@@ -5,13 +5,13 @@ from django.utils.formats import number_format
 
 @admin.register(models.Marca)
 class MarcaAdmin(admin.ModelAdmin):
-    list_display = 'nome',
-    ordering = 'nome',
+    list_display = ('nome',)
+    ordering = ('nome',)
     
 @admin.register(models.Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
-    list_display = 'nome',
-    ordering = 'nome',
+    list_display = ('nome',)
+    ordering = ('nome',)
 
 @admin.register(models.Contact)
 class ContactAdmin(admin.ModelAdmin):
@@ -44,16 +44,11 @@ class ContactAdmin(admin.ModelAdmin):
         entradas = list(obj.entradas.all().order_by('data_de_entrada'))
         saidas = list(obj.saidas.all().order_by('data_de_saida'))
 
-        # criar lotes de entradas
         lotes = []
         for entrada in entradas:
             if entrada.qtd and entrada.preco_de_custo:
-                lotes.append({
-                    "qtd": entrada.qtd,
-                    "preco": entrada.preco_de_custo
-                })
+                lotes.append({"qtd": entrada.qtd, "preco": entrada.preco_de_custo})
 
-        # consumir saídas (FIFO)
         for saida in saidas:
             qtd_saida = saida.qtd or 0
             while qtd_saida > 0 and lotes:
@@ -65,7 +60,6 @@ class ContactAdmin(admin.ModelAdmin):
                     qtd_saida -= lote["qtd"]
                     lotes.pop(0)
 
-        # agora só restam os lotes ainda em estoque
         saldo_estoque = sum(l["qtd"] for l in lotes)
         total_custo = sum(l["qtd"] * l["preco"] for l in lotes)
         preco_medio_custo = total_custo / saldo_estoque if saldo_estoque > 0 else 0
@@ -76,10 +70,8 @@ class ContactAdmin(admin.ModelAdmin):
     def quantidade_em_estoque(self, obj):
         entradas = obj.entradas.all()
         saidas = obj.saidas.all()
-
         total_entrada = sum(e.qtd for e in entradas if e.qtd)
         total_saida = sum(s.qtd for s in saidas if s.qtd)
-
         saldo = total_entrada - total_saida
         return saldo if saldo >= 0 else 0
 
@@ -88,16 +80,16 @@ class ContactAdmin(admin.ModelAdmin):
         if obj.preco_de_catalogo is not None:
             return format_html("R$ {}", number_format(obj.preco_de_catalogo, decimal_pos=2, use_l10n=True))
         return "-"
-    
+
 @admin.register(models.Entradas)
 class EntradasAdmin(admin.ModelAdmin):
-    list_display = 'data_de_entrada', 'produto_nome', 'qtd', 'preco_de_custo_formatado', 'data_de_validade', 'show'
-    ordering = '-id',
-    search_fields = 'data_de_entrada', 'id', 'descricao_do_produto__descricao_do_produto', 'qtd', 'preco_de_custo'
+    list_display = ('data_de_entrada', 'produto_nome', 'qtd', 'preco_de_custo_formatado', 'data_de_validade', 'show')
+    ordering = ('-id',)
+    search_fields = ('data_de_entrada', 'id', 'descricao_do_produto__descricao_do_produto', 'qtd', 'preco_de_custo')
     list_per_page = 50
     list_max_show_all = 300
-    list_editable = 'show',
-    list_display_links = 'produto_nome',
+    list_editable = ('show',)
+    list_display_links = ('produto_nome',)
     
     @admin.display(description="Descrição do Produto", ordering='descricao_do_produto__descricao_do_produto')
     def produto_nome(self, obj):
@@ -108,7 +100,7 @@ class EntradasAdmin(admin.ModelAdmin):
         if obj.preco_de_custo is not None:
             return format_html("R$ {}", number_format(obj.preco_de_custo, decimal_pos=2, use_l10n=True))
         return "-"
-    
+
 @admin.register(models.Saidas)
 class SaidasAdmin(admin.ModelAdmin):
     list_display = (
@@ -135,8 +127,6 @@ class SaidasAdmin(admin.ModelAdmin):
     list_max_show_all = 300
     list_editable = ('show',)
     list_display_links = ('produto_nome',)
-
-    # ❌ remove campos do formulário
     exclude = ('preco_de_custo_registrado', 'lucro')
 
     @admin.display(description="Descrição do Produto", ordering='descricao_do_produto__descricao_do_produto')
