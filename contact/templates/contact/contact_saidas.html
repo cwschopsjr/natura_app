@@ -7,13 +7,13 @@
             {{ saidas.descricao_do_produto }}
         </h1>
 
-        {% if saidas.descricao_do_produto.picture %}
+        <!-- {% if saidas.descricao_do_produto.picture %}
             <p>
                 <img src="{{ saidas.descricao_do_produto.picture.url }}" 
                      class="single-contact single-contact-picture" 
                      alt="{{ saidas.descricao_do_produto }}">
             </p>
-        {% endif %}
+        {% endif %} -->
 
         <p class="description"><b>Data de saída:&nbsp</b> {{ saidas.data_de_saida|date:"d/m/Y H:i" }}</p>
         <p class="description"><b>Descrição do produto:&nbsp</b> {{ saidas.descricao_do_produto }}</p>

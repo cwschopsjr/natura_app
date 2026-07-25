@@ -16,7 +16,7 @@
                       <th onclick="sortTable(1)" class="table-header">Descrição do produto</th>
                       <th onclick="sortTable(2)" class="table-header">Quantidade</th>
                       <th onclick="sortTable(3)" class="table-header">Preço de custo</th>
-                      <th onclick="sortTable(3)" class="table-header">Data de validade</th>
+                      <!-- <th onclick="sortTable(3)" class="table-header">Data de validade</th> -->
                   </tr>
               </thead>
 
@@ -94,9 +94,9 @@
                           <td class="table-cel">
                               R$ {{entradas.preco_de_custo|floatformat:2}}
                           </td>
-                          <td class="table-cel">
+                          <!-- <td class="table-cel">
                               {{entradas.data_de_validade|date:"d/m/Y"}}
-                          </td>
+                          </td> -->
                       </tr>
                   {% endfor %}
               </tbody>

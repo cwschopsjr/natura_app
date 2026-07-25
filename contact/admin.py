@@ -1,7 +1,5 @@
 from django.contrib import admin
 from contact import models
-from django.utils.html import format_html
-from django.utils.formats import number_format
 
 @admin.register(models.Marca)
 class MarcaAdmin(admin.ModelAdmin):
@@ -64,7 +62,8 @@ class ContactAdmin(admin.ModelAdmin):
         total_custo = sum(l["qtd"] * l["preco"] for l in lotes)
         preco_medio_custo = total_custo / saldo_estoque if saldo_estoque > 0 else 0
 
-        return format_html("R$ {}", number_format(preco_medio_custo, decimal_pos=2, use_l10n=True))
+        # 🔹 retorna string já formatada com 2 casas decimais
+        return f"R$ {preco_medio_custo:.2f}"
 
     @admin.display(description="Quantidade em Estoque")
     def quantidade_em_estoque(self, obj):
@@ -78,12 +77,12 @@ class ContactAdmin(admin.ModelAdmin):
     @admin.display(description="Preço de Catálogo")
     def preco_de_catalogo_formatado(self, obj):
         if obj.preco_de_catalogo is not None:
-            return format_html("R$ {}", number_format(obj.preco_de_catalogo, decimal_pos=2, use_l10n=True))
+            return f"R$ {float(obj.preco_de_catalogo):.2f}"
         return "-"
 
 @admin.register(models.Entradas)
 class EntradasAdmin(admin.ModelAdmin):
-    list_display = ('data_de_entrada', 'produto_nome', 'qtd', 'preco_de_custo_formatado', 'data_de_validade', 'show')
+    list_display = ('data_de_entrada', 'produto_nome', 'qtd', 'preco_de_custo_formatado', 'show')
     ordering = ('-id',)
     search_fields = ('data_de_entrada', 'id', 'descricao_do_produto__descricao_do_produto', 'qtd', 'preco_de_custo')
     list_per_page = 50
@@ -98,7 +97,7 @@ class EntradasAdmin(admin.ModelAdmin):
     @admin.display(description="Preço de Custo")
     def preco_de_custo_formatado(self, obj):
         if obj.preco_de_custo is not None:
-            return format_html("R$ {}", number_format(obj.preco_de_custo, decimal_pos=2, use_l10n=True))
+            return f"R$ {float(obj.preco_de_custo):.2f}"
         return "-"
 
 @admin.register(models.Saidas)
@@ -136,17 +135,17 @@ class SaidasAdmin(admin.ModelAdmin):
     @admin.display(description="Preço de Venda")
     def preco_de_venda_formatado(self, obj):
         if obj.preco_de_venda is not None:
-            return format_html("R$ {}", number_format(obj.preco_de_venda, decimal_pos=2, use_l10n=True))
+            return f"R$ {float(obj.preco_de_venda):.2f}"
         return "-"
 
     @admin.display(description="Preço de Custo Médio")
     def preco_de_custo_formatado(self, obj):
         if obj.preco_de_custo_registrado is not None:
-            return format_html("R$ {}", number_format(obj.preco_de_custo_registrado, decimal_pos=2, use_l10n=True))
+            return f"R$ {float(obj.preco_de_custo_registrado):.2f}"
         return "-"
 
     @admin.display(description="Lucro")
     def lucro_formatado(self, obj):
         if obj.lucro is not None:
-            return format_html("R$ {}", number_format(obj.lucro, decimal_pos=2, use_l10n=True))
+            return f"R$ {float(obj.lucro):.2f}"
         return "-"

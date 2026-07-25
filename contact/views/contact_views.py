@@ -104,7 +104,7 @@ def search(request):
         if match:
             results.append(contact)
 
-    paginator = Paginator(results, 500)
+    paginator = Paginator(results, 50)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
