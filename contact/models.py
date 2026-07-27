@@ -1,10 +1,15 @@
 from django.db import models
 from django.utils import timezone
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from itertools import chain
+from operator import attrgetter
 
 class Marca(models.Model):
     class Meta:
         ordering = ['nome']
     nome = models.CharField(max_length=50)
+    
     def __str__(self) -> str:
         return self.nome
 
@@ -14,6 +19,7 @@ class Categoria(models.Model):
         verbose_name_plural = "Categorias"
         ordering = ['nome']
     nome = models.CharField(max_length=50)
+    
     def __str__(self) -> str:
         return self.nome
     
@@ -39,6 +45,7 @@ class Contact(models.Model):
     def __str__(self) -> str:
         return f'{self.descricao_do_produto} {self.categoria} {self.marca}'
 
+
 class Entradas(models.Model):
     class Meta:
         verbose_name = "Entrada"
@@ -53,19 +60,6 @@ class Entradas(models.Model):
     def __str__(self) -> str:
         return f'{self.descricao_do_produto}'
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if self.descricao_do_produto:
-            produto = self.descricao_do_produto
-            saldo_atual = produto.saldo_estoque or 0
-            custo_atual = produto.preco_medio_custo or 0
-            valor_atual = saldo_atual * custo_atual
-            valor_nova = (self.qtd or 0) * (self.preco_de_custo or 0)
-            novo_saldo = saldo_atual + (self.qtd or 0)
-            novo_custo_medio = (valor_atual + valor_nova) / novo_saldo if novo_saldo > 0 else 0
-            produto.saldo_estoque = novo_saldo
-            produto.preco_medio_custo = novo_custo_medio
-            produto.save(update_fields=['saldo_estoque', 'preco_medio_custo'])
 
 class Saidas(models.Model):
     class Meta:
@@ -100,20 +94,79 @@ class Saidas(models.Model):
 
     def save(self, *args, **kwargs):
         if self.descricao_do_produto and self.qtd:
-            entradas = self.descricao_do_produto.entradas.all()
-            total_qtd = sum(e.qtd or 0 for e in entradas)
-            total_custo = sum((e.qtd or 0) * (e.preco_de_custo or 0) for e in entradas)
-            custo_unitario = total_custo / total_qtd if total_qtd > 0 else 0
+            custo_unitario = self.descricao_do_produto.preco_medio_custo or 0
             self.preco_de_custo_registrado = custo_unitario
+            
             if self.preco_de_venda is not None and self.qtd > 0:
                 preco_unitario_venda = self.preco_de_venda / self.qtd
                 self.lucro = (preco_unitario_venda - custo_unitario) * self.qtd
             else:
                 self.lucro = 0
-            saidas = self.descricao_do_produto.saidas.exclude(pk=self.pk).all()
-            total_saidas = sum(s.qtd or 0 for s in saidas) + (self.qtd or 0)
-            saldo = max(total_qtd - total_saidas, 0)
-            self.descricao_do_produto.saldo_estoque = saldo
-            self.descricao_do_produto.save(update_fields=['saldo_estoque'])
+                
         super().save(*args, **kwargs)
 
+
+# ==========================================
+# SIGNALS DE ATUALIZAÇÃO DE ESTOQUE
+# ==========================================
+
+def recalcular_estoque(produto):
+    """
+    Recalcula o Saldo e Custo Médio usando a data real dos eventos.
+    Em caso de empate de data/hora, processa as Entradas antes das Saídas.
+    """
+    if not produto:
+        return
+
+    entradas = list(produto.entradas.all())
+    saidas = list(produto.saidas.all())
+
+    for e in entradas:
+        e.tipo_evento = 'entrada'
+        e.data_evento = e.data_de_entrada
+    for s in saidas:
+        s.tipo_evento = 'saida'
+        s.data_evento = s.data_de_saida
+
+    # 🔹 O SEGREDO ESTÁ AQUI: Ordena pela data. 
+    # Se a data for igual, Entrada (0) tem prioridade sobre Saída (1)
+    eventos = sorted(chain(entradas, saidas), key=lambda x: (x.data_evento, 0 if x.tipo_evento == 'entrada' else 1))
+
+    saldo = 0
+    custo_medio = 0
+    valor_total_investido = 0
+
+    for evento in eventos:
+        qtd = evento.qtd or 0
+        if qtd == 0:
+            continue
+
+        if evento.tipo_evento == 'entrada':
+            custo_unitario = evento.preco_de_custo or 0
+            valor_total_investido += (qtd * custo_unitario)
+            saldo += qtd
+            
+            if saldo > 0:
+                custo_medio = valor_total_investido / saldo
+
+        elif evento.tipo_evento == 'saida':
+            saldo -= qtd
+            
+            # Se o estoque ZEROU, limpa a memória do custo antigo
+            if saldo <= 0:
+                saldo = 0
+                valor_total_investido = 0
+                custo_medio = 0
+            else:
+                valor_total_investido = saldo * custo_medio
+
+    # Grava o resultado final no produto
+    produto.saldo_estoque = saldo
+    produto.preco_medio_custo = custo_medio
+    produto.save(update_fields=['saldo_estoque', 'preco_medio_custo'])
+
+
+@receiver([post_save, post_delete], sender=Entradas)
+@receiver([post_save, post_delete], sender=Saidas)
+def trigger_atualizacao_estoque(sender, instance, **kwargs):
+    recalcular_estoque(instance.descricao_do_produto)

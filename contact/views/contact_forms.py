@@ -6,8 +6,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 
-
-
 @login_required(login_url='contact:login')
 def create(request):
     form_action = reverse('contact:create')
@@ -49,10 +47,8 @@ def create(request):
 
     return render(request, 'contact/create.html', context)
 
-
 @login_required(login_url='contact:login')
 def update(request, contact_id):
-
     contact = get_object_or_404(
         Contact, pk=contact_id, show=True
     )
@@ -90,7 +86,6 @@ def update(request, contact_id):
     
 @login_required(login_url='contact:login')
 def update_entradas(request, contact_id):
-
     entrada = get_object_or_404(
         Entradas, pk=contact_id, show=True
     )
@@ -128,7 +123,6 @@ def update_entradas(request, contact_id):
     
 @login_required(login_url='contact:login')
 def update_saidas(request, contact_id):
-
     saida = get_object_or_404(
         Saidas, pk=contact_id, show=True
     )
@@ -214,21 +208,8 @@ def create_saidas(request):
             saida = form.save(commit=False)
             saida.show = True
 
-            # calcula o custo médio do produto relacionado
-            produto = saida.descricao_do_produto  # ForeignKey para Contact
-            entradas = produto.entradas.all()
-
-            total_qtd = 0
-            total_custo = 0.0
-            for entrada in entradas:
-                if entrada.qtd and entrada.preco_de_custo:
-                    total_qtd += entrada.qtd
-                    total_custo += entrada.qtd * entrada.preco_de_custo
-
-            preco_medio_custo = total_custo / total_qtd if total_qtd > 0 else 0
-
-            # grava o custo médio vigente no momento da saída
-            saida.preco_de_custo_registrado = preco_medio_custo
+            # Toda a lógica manual de custo foi APAGADA daqui!
+            # Agora chamamos apenas o save(), e o Django vai rodar a lógica lá do models.py
 
             saida.save()
             messages.success(request, 'Saída registrada com sucesso.')
